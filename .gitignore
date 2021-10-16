@@ -1,0 +1,17 @@
+# System files
+.DS_Store
+
+# R
+.Rhistory
+.Rapp.history
+.Rproj.user
+.RData
+
+*.egg-info
+__pycache__
+.ipynb_checkpoints
+build
+
+.vscode
+
+venv
