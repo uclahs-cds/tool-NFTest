@@ -1,4 +1,5 @@
 """ Test runner """
+import os
 from typing import List
 import yaml
 from nftest.NFTestGlobal import NFTestGlobal

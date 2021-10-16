@@ -2,6 +2,7 @@
 import errno
 import os
 from pathlib import Path
+import subprocess as sp
 from typing import Callable
 from nftest.common import calculate_checksum
 

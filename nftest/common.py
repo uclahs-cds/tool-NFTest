@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 import shutil
 import sys
-from typing import TYPE_CHECKING
 from nftest import __version__
 
 
