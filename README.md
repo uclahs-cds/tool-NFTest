@@ -15,3 +15,7 @@ nftest expects a config file names 'nftest.yaml' or 'nftest.yml' at the root dir
 ```
 nftest
 ```
+
+## Config file
+
+The config file reuires to have two keys at the top level, `global` and `cases`. `global` controls global settings such as path to the nextflow temporary dir, global nextflow config, whether to remove nextflow temporary files after each run. `cases` holds a list of all test cases. See [here](https://github.com/uclahs-cds/pipeline-germline-somatic/blob/af5e984a247a241f7b4cfbb7af97e0bf1640e7e6/nf-test.yaml) for an example.
