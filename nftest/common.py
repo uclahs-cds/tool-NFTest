@@ -5,7 +5,9 @@ import glob
 import os
 from pathlib import Path
 import shutil
+import sys
 from typing import TYPE_CHECKING
+from nftest import __version__
 
 
 # pylint: disable=W0613
@@ -44,3 +46,8 @@ def find_config_yaml(args:argparse.Namespace):
             args.CONFIG = Path('./nf-test.yaml')
         elif Path('./nf-test.yml').exists():
             args.CONFIG = Path('./nf-test.yml')
+
+def print_version_and_exist():
+    """ print version and exist """
+    print(__version__, file=sys.stdout)
+    sys.exit()
