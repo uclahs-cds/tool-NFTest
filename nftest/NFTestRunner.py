@@ -1,0 +1,50 @@
+""" Test runner """
+from typing import List
+import yaml
+from nftest.NFTestGlobal import NFTestGlobal
+from nftest.NFTestAssert import NFTestAssert
+from nftest.NFTestCase import NFTestCase
+from nftest.common import validate_yaml
+
+class NFTestRunner():
+    """ This holds all test cases and global settings from a single yaml file.
+    """
+    def __init__(self, _global:NFTestGlobal=None, cases:List[NFTestCase]=None):
+        """ Constructor """
+        self._global = _global
+        self.cases = cases or []
+
+    def load_from_config(self, config_yaml:str):
+        """ Load test info from config file. """
+        validate_yaml(config_yaml)
+        with open(config_yaml, 'rt') as handle:
+            config = yaml.safe_load(handle)
+            self._global = NFTestGlobal(**config['global'])
+            for case in config['cases']:
+                if 'asserts' in case:
+                    asserts = [NFTestAssert(**ass) for ass in case['asserts']]
+                else:
+                    asserts = []
+                case['asserts'] = asserts
+                case['nf_configs'] = [case['nf_config']]
+                del case['nf_config']
+                test_case = NFTestCase(**case)
+                test_case.combine_global(self._global)
+                self.cases.append(test_case)
+
+    def main(self):
+        """ Main entrance """
+        self.print_prolog()
+        for case in self.cases:
+            case.test()
+
+    @staticmethod
+    def print_prolog():
+        """ Print prolog """
+        # pylint: disable=C0103
+        prolog = ''
+        terminal_width = os.get_terminal_size().columns
+        header = ' NF-TEST STARTS '
+        x = int((terminal_width - 17)/2)
+        prolog = '=' * x + header + '=' * (terminal_width - 17 - x) + '\n'
+        print(prolog, flush=True)
