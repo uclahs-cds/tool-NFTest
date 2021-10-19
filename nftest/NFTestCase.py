@@ -1,6 +1,7 @@
 """ NF Test case """
 from __future__ import annotations
 import shutil
+import subprocess as sp
 from typing import Callable, List, TYPE_CHECKING
 from nftest.common import remove_nextflow_logs
 
