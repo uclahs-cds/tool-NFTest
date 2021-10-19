@@ -7,7 +7,6 @@ from nftest.common import remove_nextflow_logs
 
 
 if TYPE_CHECKING:
-    import subprocess as sp
     from nftest.NFTestGlobal import NFTestGlobal
     from nftest.NFTestAssert import NFTestAssert
 
