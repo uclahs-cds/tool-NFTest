@@ -9,46 +9,46 @@ from nftest.common import calculate_checksum
 
 class NFTestAssert():
     """ Defines how nextflow test results are asserted. """
-    def __init__(self, received:str, expected:str, method:str='md5',
+    def __init__(self, actual:str, expect:str, method:str='md5',
             script:str=None):
         """ Constructor """
-        self.received = received
-        self.expected = expected
+        self.actual = actual
+        self.expect = expect
         self.method = method
         self.script = script
 
     def assert_expected(self):
         """ Assert the results match with the expected values. """
-        if not Path(self.received).exists():
-            print(f'Received file not found: {self.received}')
+        if not Path(self.actual).exists():
+            print(f'Actual file not found: {self.actual}')
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
-                self.received)
+                self.actual)
 
-        if not Path(self.expected).exists():
-            print(f'Expected file not found: {self.received}')
+        if not Path(self.expect).exists():
+            print(f'Expect file not found: {self.actual}')
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
-                self.expected)
+                self.expect)
 
         assert_method = self.get_assert_method()
         try:
-            assert assert_method(self.received, self.expected)
+            assert assert_method(self.actual, self.expect)
         except AssertionError:
             print('Assertion failed\n', flush=True)
-            print(f'Received: {self.received}\n', flush=True)
-            print(f'Expected: {self.expected}\n', flush=True)
+            print(f'Actual: {self.actual}\n', flush=True)
+            print(f'Expect: {self.expect}\n', flush=True)
 
     def get_assert_method(self) -> Callable:
         """ Get the assert method """
         # pylint: disable=E0102
         if self.script is not None:
-            def func(received, expected):
-                cmd = f"{self.script} {received} {expected}"
+            def func(actual, expect):
+                cmd = f"{self.script} {actual} {expect}"
                 return sp.run(cmd, shell=True, check=False)
             return func
         if self.method == 'md5':
-            def func(received, expected):
-                received_value = calculate_checksum(received)
-                expected_value = calculate_checksum(expected)
-                return received_value == expected_value
+            def func(actual, expect):
+                actual_value = calculate_checksum(actual)
+                expect_value = calculate_checksum(expect)
+                return actual_value == expect_value
             return func
         raise ValueError(f'assert method {self.method} unknown.')
