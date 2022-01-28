@@ -2,9 +2,9 @@
 from __future__ import annotations
 import argparse
 import os
-import pkg_resources
 from pathlib import Path
 import shutil
+import pkg_resources
 from nftest.common import find_config_yaml, print_version_and_exist
 from nftest.NFTestRunner import NFTestRunner
 
