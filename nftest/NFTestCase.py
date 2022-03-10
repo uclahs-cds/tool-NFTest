@@ -15,14 +15,16 @@ class NFTestCase():
     # pylint: disable=R0902
     # pylint: disable=R0913
     def __init__(self, name:str=None, message:str=None, nf_script:str=None,
-            nf_configs:List[str]=None, asserts:List[NFTestAssert]=None,
-            temp_dir:str=None, remove_temp:bool=None, clean_logs:bool=True,
+            nf_configs:List[str]=None, params_file:str=None,
+            asserts:List[NFTestAssert]=None, temp_dir:str=None,
+            remove_temp:bool=None, clean_logs:bool=True,
             skip:bool=False, verbose:bool=False):
         """ Constructor """
         self.name = name
         self.message = message
         self.nf_script = nf_script
         self.nf_configs = nf_configs or []
+        self.params_file = params_file
         self.asserts = asserts or []
         self.temp_dir = temp_dir
         self.remove_temp = remove_temp
@@ -67,11 +69,13 @@ class NFTestCase():
         config_arg = ''
         for nf_config in self.nf_configs:
             config_arg += f'-c {nf_config} '
+        params_file_arg = f"-params-file {self.params_file}" if self.params_file else ""
         cmd = f"""
         NXF_WORK={self.temp_dir} \
         nextflow run \
             {self.nf_script} \
-            {config_arg}
+            {config_arg} \
+            {params_file_arg}
         """
         print(' '.join(cmd.split()), flush=True)
         return sp.run(cmd, shell=True, check=False, capture_output=(not self.verbose))
