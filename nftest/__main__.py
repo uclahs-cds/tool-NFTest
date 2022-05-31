@@ -20,16 +20,10 @@ def parse_args() -> argparse.Namespace:
         action='store_true',
         default=False
     )
-    parser.add_argument(
-        'CONFIG',
-        type=Path,
-        help='Path the the nextflow test config YAML file. If not given, it'
-        ' looks for nf-test.yaml or nf-test.yml',
-        default=None,
-        nargs='?'
-    )
+
     subparsers = parser.add_subparsers(dest='command')
     add_subparser_init(subparsers)
+    add_subparser_run(subparsers)
     return parser.parse_args()
 
 # pylint: disable=W0212
@@ -43,23 +37,38 @@ def add_subparser_init(subparsers:argparse._SubParsersAction):
     )
     parser.set_defaults(func=init)
 
-def main():
-    """ main entrance """
-    args = parse_args()
+def add_subparser_run(subparsers:argparse._SubParsersAction):
+    """ Add subparser for run """
+    parser:argparse.ArgumentParser = subparsers.add_parser(
+        name='run',
+        help='Run nextflow tests.',
+        description='Run nextflow tests.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        '-c', '--config-file',
+        type=Path,
+        help='Path the the nextflow test config YAML file. If not given, it'
+        ' looks for nf-test.yaml or nf-test.yml',
+        default=None,
+        nargs='?'
+    )
+    parser.add_argument(
+        'TEST_CASES',
+        type=str,
+        help='Exact test case to run.',
+        nargs='*'
+    )
+    parser.set_defaults(func=run)
 
-    if args.version:
-        print_version_and_exist()
-
-    if args.command:
-        args.func()
-        return
-
+def run(args):
+    """ Run """
     find_config_yaml(args)
     runner = NFTestRunner()
-    runner.load_from_config(args.CONFIG)
+    runner.load_from_config(args.config_file, args.TEST_CASES)
     runner.main()
 
-def init():
+def init(_):
     """ Set up nftest """
     cwd = Path(os.getcwd())
 
@@ -84,6 +93,15 @@ def init():
         print('./test/global.config  created', flush=True)
     else:
         print('./test/global.config  already exists', flush=True)
+
+def main():
+    """ main entrance """
+    args = parse_args()
+
+    if args.version:
+        print_version_and_exist()
+
+    args.func(args)
 
 if __name__ == '__main__':
     main()
