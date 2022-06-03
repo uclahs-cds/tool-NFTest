@@ -15,7 +15,7 @@ class NFTestRunner():
         self._global = _global
         self.cases = cases or []
 
-    def load_from_config(self, config_yaml:str):
+    def load_from_config(self, config_yaml:str, target_cases:List[str]):
         """ Load test info from config file. """
         validate_yaml(config_yaml)
         with open(config_yaml, 'rt') as handle:
@@ -31,6 +31,8 @@ class NFTestRunner():
                 del case['nf_config']
                 test_case = NFTestCase(**case)
                 test_case.combine_global(self._global)
+                if target_cases and not test_case.name in target_cases:
+                    continue
                 self.cases.append(test_case)
 
     def main(self):

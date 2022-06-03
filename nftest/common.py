@@ -40,11 +40,11 @@ def calculate_checksum(path:Path) -> str:
 
 def find_config_yaml(args:argparse.Namespace):
     """ Find the test config yaml """
-    if args.CONFIG is None:
+    if args.config_file is None:
         if Path('./nftest.yaml').exists():
-            args.CONFIG = Path('./nftest.yaml')
+            args.config_file = Path('./nftest.yaml')
         elif Path('./nftest.yml').exists():
-            args.CONFIG = Path('./nftest.yml')
+            args.config_file = Path('./nftest.yml')
 
 def print_version_and_exist():
     """ print version and exist """
