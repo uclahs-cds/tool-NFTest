@@ -5,7 +5,7 @@ Command line tool for automated testing of Nextflow pipelines.
 ## Install
 
 ```
-pip install git+ssh://git@github.com:uclahs-cds/tool-NF-test.git
+pip install git+ssh://git@github.com/uclahs-cds/tool-NF-test.git
 ```
 
 ## Usage
@@ -13,8 +13,14 @@ pip install git+ssh://git@github.com:uclahs-cds/tool-NF-test.git
 nftest expects a config file names 'nftest.yaml' or 'nftest.yml' at the root directory of the nextflow pipelien repo. Run the simple command to launch test cases.
 
 ```
-nftest
+nftest run
 ```
+
+To run specific test cases use the following command
+ 
+ ```
+ nftest run <test name in nftest.yaml file>
+ ```
 
 ## Config file
 
