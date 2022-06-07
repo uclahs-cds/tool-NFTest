@@ -5,7 +5,7 @@ Command line tool for automated testing of Nextflow pipelines.
 ## Install
 
 ```
-pip install git+ssh://git@github.com:uclahs-cds/tool-NF-test.git
+pip install git+ssh://git@github.com/uclahs-cds/tool-NF-test.git
 ```
 
 ## Usage
