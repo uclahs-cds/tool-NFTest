@@ -59,7 +59,7 @@ class NFTestCase():
             try:
                 ass.assert_expected()
             except Exception as error:
-                print(error, flush=True)
+                print(error.args, flush=True)
                 print(' [ failed ]\n', flush=True)
                 raise error
         print(' [ succeed ]\n', flush=True)
