@@ -41,7 +41,7 @@ class NFTestRunner():
         for case in self.cases:
             try:
                 case.test()
-            except Exception:
+            except AssertionError:
                 # In case of failed test case, continue with other cases
                 continue
 
