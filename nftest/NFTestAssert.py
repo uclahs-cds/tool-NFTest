@@ -32,10 +32,11 @@ class NFTestAssert():
         assert_method = self.get_assert_method()
         try:
             assert assert_method(self.actual, self.expect)
-        except AssertionError:
+        except AssertionError as error:
             print('Assertion failed\n', flush=True)
             print(f'Actual: {self.actual}\n', flush=True)
             print(f'Expect: {self.expect}\n', flush=True)
+            raise error
 
     def get_assert_method(self) -> Callable:
         """ Get the assert method """
@@ -43,7 +44,8 @@ class NFTestAssert():
         if self.script is not None:
             def func(actual, expect):
                 cmd = f"{self.script} {actual} {expect}"
-                return sp.run(cmd, shell=True, check=False)
+                process_out = sp.run(cmd, shell=True, check=False)
+                return process_out.returncode == 0
             return func
         if self.method == 'md5':
             def func(actual, expect):
