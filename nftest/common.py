@@ -7,6 +7,7 @@ from pathlib import Path
 import shutil
 import sys
 from nftest import __version__
+from dotenv import load_dotenv
 
 
 # pylint: disable=W0613
@@ -50,3 +51,8 @@ def print_version_and_exist():
     """ print version and exist """
     print(__version__, file=sys.stdout)
     sys.exit()
+
+def load_env():
+    """ Load and set env variables """
+    if not load_dotenv():
+        print('WARN: .env not found. Default values will be used.')

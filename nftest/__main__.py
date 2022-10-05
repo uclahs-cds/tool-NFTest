@@ -49,7 +49,7 @@ def add_subparser_run(subparsers:argparse._SubParsersAction):
         '-c', '--config-file',
         type=Path,
         help='Path the the nextflow test config YAML file. If not given, it'
-        ' looks for nf-test.yaml or nf-test.yml',
+        ' looks for nftest.yaml or nftest.yml',
         default=None,
         nargs='?'
     )
