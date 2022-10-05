@@ -12,7 +12,7 @@ from nftest.NFTestRunner import NFTestRunner
 def parse_args() -> argparse.Namespace:
     """ Parse args """
     parser = argparse.ArgumentParser(
-        prog='nf-test'
+        prog='nftest'
     )
     parser.add_argument(
         '-V', '--version',
