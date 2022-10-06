@@ -6,8 +6,8 @@ import os
 from pathlib import Path
 import shutil
 import sys
-from nftest import __version__
 from dotenv import load_dotenv
+from nftest import __version__
 
 
 # pylint: disable=W0613
