@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import pkg_resources
-from nftest.common import find_config_yaml, print_version_and_exist
+from nftest.common import find_config_yaml, print_version_and_exist, load_env
 from nftest.NFTestRunner import NFTestRunner
 
 
@@ -70,29 +70,39 @@ def run(args):
 
 def init(_):
     """ Set up nftest """
-    cwd = Path(os.getcwd())
+    load_env()
+
+    wd = os.getenv('TEST_SETUP_DIRECTORY', default=os.getcwd())
+    wd = Path(wd)
+
+    if not wd.exists():
+        try:
+            print(f'{wd} does not exist, attempting to create it...')
+            wd.mkdir(parents=True)
+        except (OSError, PermissionError) as file_error:
+            raise Exception(f'Failed to create {wd}. Please ensure proper permissions are set.') from file_error
 
     # copy over the nftest.yaml
     nftest_yaml = pkg_resources.resource_filename(
         'nftest', 'data/nftest.yml'
     )
-    if not (cwd/'nftest.yml').exists():
-        shutil.copy2(nftest_yaml, cwd)
-        print('./nftest.yml  created', flush=True)
+    if not (wd/'nftest.yml').exists():
+        test_yaml = shutil.copy2(nftest_yaml, wd)
+        print(f'{test_yaml} created', flush=True)
     else:
-        print('./nftest.yml  already exists', flush=True)
+        print(f'{wd}/nftest.yml already exists', flush=True)
 
     # copy global.config over
     global_config = pkg_resources.resource_filename(
         'nftest', 'data/global.config'
     )
-    test_dir = cwd/'test'
+    test_dir = wd/'test'
     test_dir.mkdir(exist_ok=True)
     if not (test_dir/'global.config').exists():
-        shutil.copy2(global_config, test_dir)
-        print('./test/global.config  created', flush=True)
+        global_config = shutil.copy2(global_config, test_dir/'global.config')
+        print(f'{global_config} created', flush=True)
     else:
-        print('./test/global.config  already exists', flush=True)
+        print(f'{test_dir}/global.config already exists', flush=True)
 
 def main():
     """ main entrance """
