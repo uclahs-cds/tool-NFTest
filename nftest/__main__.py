@@ -63,6 +63,8 @@ def add_subparser_run(subparsers:argparse._SubParsersAction):
 
 def run(args):
     """ Run """
+    load_env()
+
     find_config_yaml(args)
     runner = NFTestRunner()
     runner.load_from_config(args.config_file, args.TEST_CASES)

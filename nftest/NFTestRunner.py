@@ -27,7 +27,7 @@ class NFTestRunner():
                 else:
                     asserts = []
                 case['asserts'] = asserts
-                case['nf_configs'] = [case['nf_config']]
+                case['nf_configs'] = [case['nf_config']] if case['nf_config'] is not None else []
                 del case['nf_config']
                 test_case = NFTestCase(**case)
                 test_case.combine_global(self._global)

@@ -16,25 +16,27 @@ class NFTestAssert():
         self.expect = expect
         self.method = method
         self.script = script
+        output_dir = os.getenv('TEST_OUTPUT_DIRECTORY', default='./')
+        self.resolved_actual = os.path.join(output_dir, actual)
 
     def assert_expected(self):
         """ Assert the results match with the expected values. """
-        if not Path(self.actual).exists():
-            print(f'Actual file not found: {self.actual}')
+        if not Path(self.resolved_actual).exists():
+            print(f'Actual file not found: {self.resolved_actual}')
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
-                self.actual)
+                self.resolved_actual)
 
         if not Path(self.expect).exists():
-            print(f'Expect file not found: {self.actual}')
+            print(f'Expect file not found: {self.expect}')
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.expect)
 
         assert_method = self.get_assert_method()
         try:
-            assert assert_method(self.actual, self.expect)
+            assert assert_method(self.resolved_actual, self.expect)
         except AssertionError as error:
             print('Assertion failed\n', flush=True)
-            print(f'Actual: {self.actual}\n', flush=True)
+            print(f'Actual: {self.resolved_actual}\n', flush=True)
             print(f'Expect: {self.expect}\n', flush=True)
             raise error
 
