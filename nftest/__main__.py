@@ -74,31 +74,33 @@ def init(_):
     """ Set up nftest """
     load_env()
 
-    wd = os.getenv('TEST_SETUP_DIRECTORY', default=os.getcwd())
-    wd = Path(wd)
+    working_dir = os.getenv('TEST_SETUP_DIRECTORY', default=os.getcwd())
+    working_dir = Path(working_dir)
 
-    if not wd.exists():
+    if not working_dir.exists():
         try:
-            print(f'{wd} does not exist, attempting to create it...')
-            wd.mkdir(parents=True)
+            print(f'{working_dir} does not exist, attempting to create it...')
+            working_dir.mkdir(parents=True)
         except (OSError, PermissionError) as file_error:
-            raise Exception(f'Failed to create {wd}. Please ensure proper permissions are set.') from file_error
+            raise Exception(f'Failed to create {working_dir}. ' \
+                'Please ensure proper permissions are set.') \
+                from file_error
 
     # copy over the nftest.yaml
     nftest_yaml = pkg_resources.resource_filename(
         'nftest', 'data/nftest.yml'
     )
-    if not (wd/'nftest.yml').exists():
-        test_yaml = shutil.copy2(nftest_yaml, wd)
+    if not (working_dir/'nftest.yml').exists():
+        test_yaml = shutil.copy2(nftest_yaml, working_dir)
         print(f'{test_yaml} created', flush=True)
     else:
-        print(f'{wd}/nftest.yml already exists', flush=True)
+        print(f'{working_dir}/nftest.yml already exists', flush=True)
 
     # copy global.config over
     global_config = pkg_resources.resource_filename(
         'nftest', 'data/global.config'
     )
-    test_dir = wd/'test'
+    test_dir = working_dir/'test'
     test_dir.mkdir(exist_ok=True)
     if not (test_dir/'global.config').exists():
         global_config = shutil.copy2(global_config, test_dir/'global.config')
