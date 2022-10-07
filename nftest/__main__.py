@@ -7,6 +7,7 @@ import shutil
 import pkg_resources
 from nftest.common import find_config_yaml, print_version_and_exist, load_env
 from nftest.NFTestRunner import NFTestRunner
+from nftest.NFTestENV import NFTestENV
 
 
 def parse_args() -> argparse.Namespace:
@@ -63,8 +64,6 @@ def add_subparser_run(subparsers:argparse._SubParsersAction):
 
 def run(args):
     """ Run """
-    load_env()
-
     find_config_yaml(args)
     runner = NFTestRunner()
     runner.load_from_config(args.config_file, args.TEST_CASES)
@@ -72,10 +71,9 @@ def run(args):
 
 def init(_):
     """ Set up nftest """
-    load_env()
+    _env = NFTestENV()
 
-    working_dir = os.getenv('TEST_SETUP_DIRECTORY', default=os.getcwd())
-    working_dir = Path(working_dir)
+    working_dir = Path(_env.NFT_INIT)
 
     if not working_dir.exists():
         try:

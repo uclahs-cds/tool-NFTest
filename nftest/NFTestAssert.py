@@ -5,26 +5,26 @@ from pathlib import Path
 import subprocess as sp
 from typing import Callable
 from nftest.common import calculate_checksum
+from nftest.NFTestENV import NFTestENV
 
 
 class NFTestAssert():
     """ Defines how nextflow test results are asserted. """
     def __init__(self, actual:str, expect:str, method:str='md5',
-            script:str=None):
+        script:str=None, _env:NFTestENV=None):
         """ Constructor """
-        self.actual = actual
+        self._env = _env or NFTestENV()
+        self.actual = os.path.join(self._env.NFT_OUTPUT, actual)
         self.expect = expect
         self.method = method
         self.script = script
-        output_dir = os.getenv('TEST_OUTPUT_DIRECTORY', default='./')
-        self.resolved_actual = os.path.join(output_dir, actual)
 
     def assert_expected(self):
         """ Assert the results match with the expected values. """
-        if not Path(self.resolved_actual).exists():
-            print(f'Actual file not found: {self.resolved_actual}')
+        if not Path(self.actual).exists():
+            print(f'Actual file not found: {self.actual}')
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
-                self.resolved_actual)
+                self.actual)
 
         if not Path(self.expect).exists():
             print(f'Expect file not found: {self.expect}')
@@ -33,10 +33,10 @@ class NFTestAssert():
 
         assert_method = self.get_assert_method()
         try:
-            assert assert_method(self.resolved_actual, self.expect)
+            assert assert_method(self.actual, self.expect)
         except AssertionError as error:
             print('Assertion failed\n', flush=True)
-            print(f'Actual: {self.resolved_actual}\n', flush=True)
+            print(f'Actual: {self.actual}\n', flush=True)
             print(f'Expect: {self.expect}\n', flush=True)
             raise error
 

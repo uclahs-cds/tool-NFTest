@@ -5,6 +5,7 @@ import os
 import subprocess as sp
 from typing import Callable, List, TYPE_CHECKING
 from nftest.common import remove_nextflow_logs
+from nftest.NFTestENV import NFTestENV
 
 
 if TYPE_CHECKING:
@@ -15,13 +16,14 @@ class NFTestCase():
     """ Defines the NF test case """
     # pylint: disable=R0902
     # pylint: disable=R0913
-    def __init__(self, name:str=None, message:str=None, nf_script:str=None,
-            nf_configs:List[str]=None, params_file:str=None,
+    def __init__(self, _env:NFTestENV=None, name:str=None, message:str=None,
+            nf_script:str=None, nf_configs:List[str]=None, params_file:str=None,
             output_directory_param_name:str='output_dir',
             asserts:List[NFTestAssert]=None, temp_dir:str=None,
             remove_temp:bool=None, clean_logs:bool=True,
             skip:bool=False, verbose:bool=False):
         """ Constructor """
+        self._env = _env or NFTestENV()
         self.name = name
         self.message = message
         self.nf_script = nf_script
@@ -74,7 +76,7 @@ class NFTestCase():
             config_arg += f'-c {nf_config} '
         params_file_arg = f"-params-file {self.params_file}" if self.params_file else ""
         output_directory_arg = f"--{self.output_directory_param_name} " \
-            f"{os.getenv('TEST_OUTPUT_DIRECTORY', default='./')}"
+            f"{self._env.NFT_OUTPUT}"
         cmd = f"""
         NXF_WORK={self.temp_dir} \
         nextflow run \
