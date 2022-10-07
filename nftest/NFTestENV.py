@@ -3,6 +3,7 @@ import os
 from dataclasses import dataclass, field
 from nftest.common import load_env
 
+# pylint: disable=C0103
 @dataclass
 class NFTestENV():
     """ Class for initializng and holding environment variables.

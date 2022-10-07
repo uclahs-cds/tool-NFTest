@@ -1,11 +1,10 @@
 """ Test NF-pipelines """
 from __future__ import annotations
 import argparse
-import os
 from pathlib import Path
 import shutil
 import pkg_resources
-from nftest.common import find_config_yaml, print_version_and_exist, load_env
+from nftest.common import find_config_yaml, print_version_and_exist
 from nftest.NFTestRunner import NFTestRunner
 from nftest.NFTestENV import NFTestENV
 
