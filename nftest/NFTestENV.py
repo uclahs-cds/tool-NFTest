@@ -1,7 +1,7 @@
 """ Environment variables """
 import os
-from dotenv import load_dotenv
 from dataclasses import dataclass, field
+from dotenv import load_dotenv
 
 # pylint: disable=C0103
 @dataclass
