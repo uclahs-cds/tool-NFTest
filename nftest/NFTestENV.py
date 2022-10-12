@@ -2,7 +2,6 @@
 import os
 from dotenv import load_dotenv
 from dataclasses import dataclass, field
-from nftest.common import load_env
 
 # pylint: disable=C0103
 @dataclass
