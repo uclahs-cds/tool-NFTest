@@ -51,17 +51,3 @@ def print_version_and_exist():
     """ print version and exist """
     print(__version__, file=sys.stdout)
     sys.exit()
-
-def load_env():
-    """ Load and set env variables """
-    dirs_to_check = []
-    dirs_to_check.append(os.getcwd())
-    dirs_to_check.append(os.path.expanduser('~'))
-    for adir in dirs_to_check:
-        if not load_dotenv(os.path.join(adir, '.env')):
-            print(f'LOG: .env not found in {adir}.')
-        else:
-            print(f'LOG: Loaded .env from {adir}')
-            return
-
-    print('WARN: unable to find .env. Default values will be used.')
