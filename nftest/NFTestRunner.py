@@ -1,12 +1,11 @@
 """ Test runner """
-import os
 from typing import List
 import yaml
 from nftest.NFTestGlobal import NFTestGlobal
 from nftest.NFTestAssert import NFTestAssert
 from nftest.NFTestCase import NFTestCase
 from nftest.NFTestENV import NFTestENV
-from nftest.common import validate_yaml
+from nftest.common import validate_yaml, generate_logger
 
 class NFTestRunner():
     """ This holds all test cases and global settings from a single yaml file.
@@ -16,6 +15,7 @@ class NFTestRunner():
         """ Constructor """
         self._global = _global
         self._env = _env or NFTestENV()
+        self._logger = generate_logger('NFTest', self._env)
         self.cases = cases or []
 
     def load_from_config(self, config_yaml:str, target_cases:List[str]):
@@ -26,13 +26,14 @@ class NFTestRunner():
             self._global = NFTestGlobal(**config['global'], _env=self._env)
             for case in config['cases']:
                 if 'asserts' in case:
-                    asserts = [NFTestAssert(**ass, _env=self._env) for ass in case['asserts']]
+                    asserts = [NFTestAssert(**ass, _env=self._env, _logger=self._logger) \
+                        for ass in case['asserts']]
                 else:
                     asserts = []
                 case['asserts'] = asserts
                 case['nf_configs'] = [case['nf_config']] if case['nf_config'] is not None else []
                 del case['nf_config']
-                test_case = NFTestCase(**case, _env=self._env)
+                test_case = NFTestCase(**case, _env=self._env, _logger=self._logger)
                 test_case.combine_global(self._global)
                 if target_cases and not test_case.name in target_cases:
                     continue
@@ -48,13 +49,6 @@ class NFTestRunner():
                 # In case of failed test case, continue with other cases
                 continue
 
-    @staticmethod
-    def print_prolog():
+    def print_prolog(self):
         """ Print prolog """
-        # pylint: disable=C0103
-        prolog = ''
-        terminal_width = os.get_terminal_size().columns
-        header = ' NF-TEST STARTS '
-        x = int((terminal_width - 17)/2)
-        prolog = '=' * x + header + '=' * (terminal_width - 17 - x) + '\n'
-        print(prolog, flush=True)
+        self._logger.info('===== NFTEST START =====')
