@@ -5,14 +5,17 @@ import yaml
 from nftest.NFTestGlobal import NFTestGlobal
 from nftest.NFTestAssert import NFTestAssert
 from nftest.NFTestCase import NFTestCase
+from nftest.NFTestENV import NFTestENV
 from nftest.common import validate_yaml
 
 class NFTestRunner():
     """ This holds all test cases and global settings from a single yaml file.
     """
-    def __init__(self, _global:NFTestGlobal=None, cases:List[NFTestCase]=None):
+    def __init__(self, _global:NFTestGlobal=None, _env:NFTestENV=None,
+        cases:List[NFTestCase]=None):
         """ Constructor """
         self._global = _global
+        self._env = _env or NFTestENV()
         self.cases = cases or []
 
     def load_from_config(self, config_yaml:str, target_cases:List[str]):
@@ -20,16 +23,16 @@ class NFTestRunner():
         validate_yaml(config_yaml)
         with open(config_yaml, 'rt') as handle:
             config = yaml.safe_load(handle)
-            self._global = NFTestGlobal(**config['global'])
+            self._global = NFTestGlobal(**config['global'], _env=self._env)
             for case in config['cases']:
                 if 'asserts' in case:
-                    asserts = [NFTestAssert(**ass) for ass in case['asserts']]
+                    asserts = [NFTestAssert(**ass, _env=self._env) for ass in case['asserts']]
                 else:
                     asserts = []
                 case['asserts'] = asserts
-                case['nf_configs'] = [case['nf_config']]
+                case['nf_configs'] = [case['nf_config']] if case['nf_config'] is not None else []
                 del case['nf_config']
-                test_case = NFTestCase(**case)
+                test_case = NFTestCase(**case, _env=self._env)
                 test_case.combine_global(self._global)
                 if target_cases and not test_case.name in target_cases:
                     continue

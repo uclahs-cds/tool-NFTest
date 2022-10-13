@@ -5,14 +5,16 @@ from pathlib import Path
 import subprocess as sp
 from typing import Callable
 from nftest.common import calculate_checksum
+from nftest.NFTestENV import NFTestENV
 
 
 class NFTestAssert():
     """ Defines how nextflow test results are asserted. """
     def __init__(self, actual:str, expect:str, method:str='md5',
-            script:str=None):
+        script:str=None, _env:NFTestENV=None):
         """ Constructor """
-        self.actual = actual
+        self._env = _env or NFTestENV()
+        self.actual = os.path.join(self._env.NFT_OUTPUT, actual)
         self.expect = expect
         self.method = method
         self.script = script
@@ -25,7 +27,7 @@ class NFTestAssert():
                 self.actual)
 
         if not Path(self.expect).exists():
-            print(f'Expect file not found: {self.actual}')
+            print(f'Expect file not found: {self.expect}')
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.expect)
 

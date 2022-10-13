@@ -1,18 +1,18 @@
 """ Test NF-pipelines """
 from __future__ import annotations
 import argparse
-import os
 from pathlib import Path
 import shutil
 import pkg_resources
 from nftest.common import find_config_yaml, print_version_and_exist
 from nftest.NFTestRunner import NFTestRunner
+from nftest.NFTestENV import NFTestENV
 
 
 def parse_args() -> argparse.Namespace:
     """ Parse args """
     parser = argparse.ArgumentParser(
-        prog='nf-test'
+        prog='nftest'
     )
     parser.add_argument(
         '-V', '--version',
@@ -49,7 +49,7 @@ def add_subparser_run(subparsers:argparse._SubParsersAction):
         '-c', '--config-file',
         type=Path,
         help='Path the the nextflow test config YAML file. If not given, it'
-        ' looks for nf-test.yaml or nf-test.yml',
+        ' looks for nftest.yaml or nftest.yml',
         default=None,
         nargs='?'
     )
@@ -70,29 +70,40 @@ def run(args):
 
 def init(_):
     """ Set up nftest """
-    cwd = Path(os.getcwd())
+    _env = NFTestENV()
+
+    working_dir = Path(_env.NFT_INIT)
+
+    if not working_dir.exists():
+        try:
+            print(f'{working_dir} does not exist, attempting to create it...')
+            working_dir.mkdir(parents=True)
+        except (OSError, PermissionError) as file_error:
+            raise Exception(f'Failed to create {working_dir}. ' \
+                'Please ensure proper permissions are set.') \
+                from file_error
 
     # copy over the nftest.yaml
     nftest_yaml = pkg_resources.resource_filename(
         'nftest', 'data/nftest.yml'
     )
-    if not (cwd/'nftest.yml').exists():
-        shutil.copy2(nftest_yaml, cwd)
-        print('./nftest.yml  created', flush=True)
+    if not (working_dir/'nftest.yml').exists():
+        test_yaml = shutil.copy2(nftest_yaml, working_dir)
+        print(f'{test_yaml} created', flush=True)
     else:
-        print('./nftest.yml  already exists', flush=True)
+        print(f'{working_dir}/nftest.yml already exists', flush=True)
 
     # copy global.config over
     global_config = pkg_resources.resource_filename(
         'nftest', 'data/global.config'
     )
-    test_dir = cwd/'test'
+    test_dir = working_dir/'test'
     test_dir.mkdir(exist_ok=True)
     if not (test_dir/'global.config').exists():
-        shutil.copy2(global_config, test_dir)
-        print('./test/global.config  created', flush=True)
+        global_config = shutil.copy2(global_config, test_dir/'global.config')
+        print(f'{global_config} created', flush=True)
     else:
-        print('./test/global.config  already exists', flush=True)
+        print(f'{test_dir}/global.config already exists', flush=True)
 
 def main():
     """ main entrance """
