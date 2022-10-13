@@ -29,7 +29,7 @@ class NFTestAssert():
                 self.actual)
 
         if not Path(self.expect).exists():
-            self._logger.error(f'Expect file not found: {self.expect}')
+            self._logger.error('Expect file not found: %s', self.expect)
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.expect)
 
@@ -37,9 +37,9 @@ class NFTestAssert():
         try:
             assert assert_method(self.actual, self.expect)
         except AssertionError as error:
-            self._logger.error('Assertion failed\n', flush=True)
-            self._logger.error(f'Actual: {self.actual}\n', flush=True)
-            self._logger.error(f'Expect: {self.expect}\n', flush=True)
+            self._logger.error('Assertion failed')
+            self._logger.error('Actual: %s', self.actual)
+            self._logger.error('Expect: %s', self.expect)
             raise error
 
     def get_assert_method(self) -> Callable:
@@ -57,5 +57,5 @@ class NFTestAssert():
                 expect_value = calculate_checksum(expect)
                 return actual_value == expect_value
             return func
-        self._logger.error(f'assert method {self.method} unknown.')
+        self._logger.error('assert method %s unknown.', self.method)
         raise ValueError(f'assert method {self.method} unknown.')

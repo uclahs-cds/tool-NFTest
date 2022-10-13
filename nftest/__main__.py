@@ -77,7 +77,7 @@ def init(_):
 
     if not working_dir.exists():
         try:
-            _logger.warning(f'{working_dir} does not exist, attempting to create it...')
+            _logger.warning('%s does not exist, attempting to create it...', working_dir)
             working_dir.mkdir(parents=True)
         except (OSError, PermissionError) as file_error:
             raise Exception(f'Failed to create {working_dir}. ' \
@@ -90,9 +90,9 @@ def init(_):
     )
     if not (working_dir/'nftest.yml').exists():
         test_yaml = shutil.copy2(nftest_yaml, working_dir)
-        _logger.info(f'{test_yaml} created')
+        _logger.info('%s created', test_yaml)
     else:
-        _logger.info(f'{working_dir}/nftest.yml already exists')
+        _logger.info('%s/nftest.yml already exists', working_dir)
 
     # copy global.config over
     global_config = pkg_resources.resource_filename(
@@ -102,9 +102,9 @@ def init(_):
     test_dir.mkdir(exist_ok=True)
     if not (test_dir/'global.config').exists():
         global_config = shutil.copy2(global_config, test_dir/'global.config')
-        _logger.info(f'{global_config} created')
+        _logger.info('%s created', global_config)
     else:
-        _logger.info(f'{test_dir}/global.config already exists')
+        _logger.info('%s/global.config already exists', test_dir)
 
 def main():
     """ main entrance """
