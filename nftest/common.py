@@ -8,7 +8,6 @@ from pathlib import Path
 import shutil
 import sys
 import time
-from typing import TYPE_CHECKING
 from nftest import __version__
 from nftest.NFTestENV import NFTestENV
 
