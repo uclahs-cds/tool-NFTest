@@ -55,7 +55,7 @@ class NFTestRunner():
         prolog = ''
         terminal_width = shutil.get_terminal_size().columns
         header = ' NFTEST STARTS '
-        x = int((terminal_width - len(header))/2)
-        prolog = '=' * x + header + '=' * (terminal_width - len(header) - x)
+        half_width = int((terminal_width - len(header))/2)
+        prolog = '=' * half_width + header + '=' * (terminal_width - len(header) - half_width)
         print(prolog, flush=True)
         self._logger.info('Beginning tests...')
