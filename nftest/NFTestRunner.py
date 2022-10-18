@@ -1,4 +1,5 @@
 """ Test runner """
+import shutil
 from typing import List
 import yaml
 from nftest.NFTestGlobal import NFTestGlobal
@@ -51,4 +52,10 @@ class NFTestRunner():
 
     def print_prolog(self):
         """ Print prolog """
-        self._logger.info('===== NFTEST START =====')
+        prolog = ''
+        terminal_width = shutil.get_terminal_size().columns
+        header = ' NFTEST STARTS '
+        x = int((terminal_width - len(header))/2)
+        prolog = '=' * x + header + '=' * (terminal_width - len(header) - x)
+        print(prolog, flush=True)
+        self._logger.info('Beginning tests...')
