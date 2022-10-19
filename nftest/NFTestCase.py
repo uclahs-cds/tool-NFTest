@@ -2,8 +2,10 @@
 from __future__ import annotations
 import shutil
 import subprocess as sp
+from subprocess import PIPE
+from logging import RootLogger
 from typing import Callable, List, TYPE_CHECKING
-from nftest.common import remove_nextflow_logs
+from nftest.common import remove_nextflow_logs, generate_logger
 from nftest.NFTestENV import NFTestENV
 
 
@@ -15,14 +17,16 @@ class NFTestCase():
     """ Defines the NF test case """
     # pylint: disable=R0902
     # pylint: disable=R0913
-    def __init__(self, _env:NFTestENV=None, name:str=None, message:str=None,
-            nf_script:str=None, nf_configs:List[str]=None, params_file:str=None,
+    def __init__(self, _env:NFTestENV=None, _logger:RootLogger=None,
+            name:str=None, message:str=None, nf_script:str=None,
+            nf_configs:List[str]=None, params_file:str=None,
             output_directory_param_name:str='output_dir',
             asserts:List[NFTestAssert]=None, temp_dir:str=None,
             remove_temp:bool=None, clean_logs:bool=True,
             skip:bool=False, verbose:bool=False):
         """ Constructor """
         self._env = _env or NFTestENV()
+        self._logger = _logger or generate_logger('NFTest', self._env)
         self.name = name
         self.message = message
         self.nf_script = nf_script
@@ -53,20 +57,20 @@ class NFTestCase():
     def test(self):
         """ Run test cases. """
         if self.skip:
-            print(' [ skipped ]\n', flush=True)
+            self._logger.info(' [ skipped ]')
             return
         res = self.submit()
         if res.returncode != 0:
-            print(' [ failed ]\n', flush=True)
+            self._logger.error(' [ failed ]')
             return
         for ass in self.asserts:
             try:
                 ass.assert_expected()
             except Exception as error:
-                print(error.args, flush=True)
-                print(' [ failed ]\n', flush=True)
+                self._logger.error(error.args)
+                self._logger.error(' [ failed ]')
                 raise error
-        print(' [ succeed ]\n', flush=True)
+        self._logger.info(' [ succeed ]')
 
     def submit(self) -> sp.CompletedProcess:
         """ Submit a nextflow run """
@@ -84,8 +88,21 @@ class NFTestCase():
             {params_file_arg} \
             {output_directory_arg}
         """
-        print(' '.join(cmd.split()), flush=True)
-        return sp.run(cmd, shell=True, check=False, capture_output=(not self.verbose))
+        self._logger.info(' '.join(cmd.split()))
+
+        res = sp.run(cmd,
+            shell=True,
+            stdout=PIPE,
+            stderr=PIPE,
+            check=False,
+            universal_newlines=True,
+            capture_output=(not self.verbose))
+
+        self._logger.info(res.stdout)
+        if res.stderr.strip():
+            self._logger.error(res.stderr)
+
+        return res
 
 
     def combine_global(self, _global:NFTestGlobal) -> None:
@@ -108,4 +125,4 @@ class NFTestCase():
     def print_prolog(self):
         """ Print prolog message """
         prolog = f'{self.name}: {self.message}'
-        print(prolog, flush=True)
+        self._logger.info(prolog)

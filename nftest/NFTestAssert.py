@@ -4,16 +4,18 @@ import os
 from pathlib import Path
 import subprocess as sp
 from typing import Callable
-from nftest.common import calculate_checksum
+from logging import RootLogger
+from nftest.common import calculate_checksum, generate_logger
 from nftest.NFTestENV import NFTestENV
 
 
 class NFTestAssert():
     """ Defines how nextflow test results are asserted. """
     def __init__(self, actual:str, expect:str, method:str='md5',
-        script:str=None, _env:NFTestENV=None):
+        script:str=None, _env:NFTestENV=None, _logger:RootLogger=None):
         """ Constructor """
         self._env = _env or NFTestENV()
+        self._logger = _logger or generate_logger('NFTest', self._env)
         self.actual = os.path.join(self._env.NFT_OUTPUT, actual)
         self.expect = expect
         self.method = method
@@ -22,12 +24,12 @@ class NFTestAssert():
     def assert_expected(self):
         """ Assert the results match with the expected values. """
         if not Path(self.actual).exists():
-            print(f'Actual file not found: {self.actual}')
+            self._logger.error(f'Actual file not found: {self.actual}')
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.actual)
 
         if not Path(self.expect).exists():
-            print(f'Expect file not found: {self.expect}')
+            self._logger.error('Expect file not found: %s', self.expect)
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.expect)
 
@@ -35,9 +37,9 @@ class NFTestAssert():
         try:
             assert assert_method(self.actual, self.expect)
         except AssertionError as error:
-            print('Assertion failed\n', flush=True)
-            print(f'Actual: {self.actual}\n', flush=True)
-            print(f'Expect: {self.expect}\n', flush=True)
+            self._logger.error('Assertion failed')
+            self._logger.error('Actual: %s', self.actual)
+            self._logger.error('Expect: %s', self.expect)
             raise error
 
     def get_assert_method(self) -> Callable:
@@ -55,4 +57,5 @@ class NFTestAssert():
                 expect_value = calculate_checksum(expect)
                 return actual_value == expect_value
             return func
+        self._logger.error('assert method %s unknown.', self.method)
         raise ValueError(f'assert method {self.method} unknown.')

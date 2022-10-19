@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 import shutil
 import pkg_resources
-from nftest.common import find_config_yaml, print_version_and_exist
+from nftest.common import find_config_yaml, print_version_and_exist, generate_logger
 from nftest.NFTestRunner import NFTestRunner
 from nftest.NFTestENV import NFTestENV
 
@@ -71,12 +71,13 @@ def run(args):
 def init(_):
     """ Set up nftest """
     _env = NFTestENV()
+    _logger = generate_logger('NFTestInit', _env)
 
     working_dir = Path(_env.NFT_INIT)
 
     if not working_dir.exists():
         try:
-            print(f'{working_dir} does not exist, attempting to create it...')
+            _logger.warning('%s does not exist, attempting to create it...', working_dir)
             working_dir.mkdir(parents=True)
         except (OSError, PermissionError) as file_error:
             raise Exception(f'Failed to create {working_dir}. ' \
@@ -89,9 +90,9 @@ def init(_):
     )
     if not (working_dir/'nftest.yml').exists():
         test_yaml = shutil.copy2(nftest_yaml, working_dir)
-        print(f'{test_yaml} created', flush=True)
+        _logger.info('%s created', test_yaml)
     else:
-        print(f'{working_dir}/nftest.yml already exists', flush=True)
+        _logger.info('%s/nftest.yml already exists', working_dir)
 
     # copy global.config over
     global_config = pkg_resources.resource_filename(
@@ -101,9 +102,9 @@ def init(_):
     test_dir.mkdir(exist_ok=True)
     if not (test_dir/'global.config').exists():
         global_config = shutil.copy2(global_config, test_dir/'global.config')
-        print(f'{global_config} created', flush=True)
+        _logger.info('%s created', global_config)
     else:
-        print(f'{test_dir}/global.config already exists', flush=True)
+        _logger.info('%s/global.config already exists', test_dir)
 
 def main():
     """ main entrance """

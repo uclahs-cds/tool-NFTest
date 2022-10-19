@@ -3,11 +3,13 @@ import argparse
 import hashlib
 import glob
 import os
+import logging
 from pathlib import Path
 import shutil
 import sys
+import time
 from nftest import __version__
-
+from nftest.NFTestENV import NFTestENV
 
 # pylint: disable=W0613
 def validate_yaml(path:Path):
@@ -50,3 +52,35 @@ def print_version_and_exist():
     """ print version and exist """
     print(__version__, file=sys.stdout)
     sys.exit()
+
+# pylint: disable=W0212
+def generate_logger(logger_name:str, env:NFTestENV=None):
+    """ Generate program-specific logger """
+    _env = env or NFTestENV()
+    try:
+        log_level = logging._checkLevel(_env.NFT_LOG_LEVEL)
+    except ValueError:
+        log_level = logging._checkLevel('INFO')
+
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(log_level)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.Formatter.converter = time.gmtime
+
+    try:
+        file_handler = logging.FileHandler(_env.NFT_LOG)
+    except (FileNotFoundError, PermissionError) as file_error:
+        raise Exception(f'Unable to create log file: {_env.NFT_LOG}') from file_error
+    file_handler.setLevel(log_level)
+
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setLevel(log_level)
+
+    file_handler.setFormatter(formatter)
+    stream_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
+
+    return logger
