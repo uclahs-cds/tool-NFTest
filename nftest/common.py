@@ -61,7 +61,6 @@ def setup_loggers():
 # pylint: disable=W0212
 def generate_logger(logger_name:str):
     """ Generate program-specific logger """
-    print(f'Generating logger for: {logging_name}')
     _env = NFTestENV()
     try:
         log_level = logging._checkLevel(_env.NFT_LOG_LEVEL)

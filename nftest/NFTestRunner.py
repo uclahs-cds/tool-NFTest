@@ -27,14 +27,14 @@ class NFTestRunner():
             self._global = NFTestGlobal(**config['global'])
             for case in config['cases']:
                 if 'asserts' in case:
-                    asserts = [NFTestAssert(**ass, _env=self._env, _logger=self._logger) \
+                    asserts = [NFTestAssert(**ass) \
                         for ass in case['asserts']]
                 else:
                     asserts = []
                 case['asserts'] = asserts
                 case['nf_configs'] = [case['nf_config']] if case['nf_config'] is not None else []
                 del case['nf_config']
-                test_case = NFTestCase(**case, _env=self._env, _logger=self._logger)
+                test_case = NFTestCase(**case)
                 test_case.combine_global(self._global)
                 if target_cases and not test_case.name in target_cases:
                     continue

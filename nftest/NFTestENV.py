@@ -18,7 +18,6 @@ class NFTestENV(metaclass=Singleton):
 
     def __post_init__(self):
         """ Post-init set env variables """
-        print('in post-init method for NFTestENV')
         NFTestENV.load_env()
 
         self.NFT_OUTPUT = os.getenv('NFT_OUTPUT', default='./')
