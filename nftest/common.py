@@ -53,10 +53,16 @@ def print_version_and_exist():
     print(__version__, file=sys.stdout)
     sys.exit()
 
+def setup_loggers():
+    """ Initialize loggers for both init and run """
+    _ = generate_logger('NFTest')
+    _ = generate_logger('NFTestInit')
+
 # pylint: disable=W0212
-def generate_logger(logger_name:str, env:NFTestENV=None):
+def generate_logger(logger_name:str):
     """ Generate program-specific logger """
-    _env = env or NFTestENV()
+    print(f'Generating logger for: {logging_name}')
+    _env = NFTestENV()
     try:
         log_level = logging._checkLevel(_env.NFT_LOG_LEVEL)
     except ValueError:

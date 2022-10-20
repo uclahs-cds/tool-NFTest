@@ -4,18 +4,17 @@ import os
 from pathlib import Path
 import subprocess as sp
 from typing import Callable
-from logging import RootLogger
+from logging import getLogger
 from nftest.common import calculate_checksum, generate_logger
 from nftest.NFTestENV import NFTestENV
 
 
 class NFTestAssert():
     """ Defines how nextflow test results are asserted. """
-    def __init__(self, actual:str, expect:str, method:str='md5',
-        script:str=None, _env:NFTestENV=None, _logger:RootLogger=None):
+    def __init__(self, actual:str, expect:str, method:str='md5', script:str=None):
         """ Constructor """
-        self._env = _env or NFTestENV()
-        self._logger = _logger or generate_logger('NFTest', self._env)
+        self._env = NFTestENV()
+        self._logger = getLogger('NFTest')
         self.actual = os.path.join(self._env.NFT_OUTPUT, actual)
         self.expect = expect
         self.method = method

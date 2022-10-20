@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 import shutil
 import pkg_resources
-from nftest.common import find_config_yaml, print_version_and_exist, generate_logger
+from nftest.common import find_config_yaml, print_version_and_exist, setup_loggers
 from nftest.NFTestRunner import NFTestRunner
 from nftest.NFTestENV import NFTestENV
 
@@ -64,6 +64,7 @@ def add_subparser_run(subparsers:argparse._SubParsersAction):
 def run(args):
     """ Run """
     find_config_yaml(args)
+    setup_loggers()
     runner = NFTestRunner()
     runner.load_from_config(args.config_file, args.TEST_CASES)
     runner.main()
@@ -71,7 +72,8 @@ def run(args):
 def init(_):
     """ Set up nftest """
     _env = NFTestENV()
-    _logger = generate_logger('NFTestInit', _env)
+    setup_loggers()
+    _logger = logging.getLogger('NFTestInit')
 
     working_dir = Path(_env.NFT_INIT)
 

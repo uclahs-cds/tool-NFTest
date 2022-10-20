@@ -2,6 +2,7 @@
 import shutil
 from typing import List
 import yaml
+from logging import getLogger
 from nftest.NFTestGlobal import NFTestGlobal
 from nftest.NFTestAssert import NFTestAssert
 from nftest.NFTestCase import NFTestCase
@@ -11,12 +12,11 @@ from nftest.common import validate_yaml, generate_logger
 class NFTestRunner():
     """ This holds all test cases and global settings from a single yaml file.
     """
-    def __init__(self, _global:NFTestGlobal=None, _env:NFTestENV=None,
-        cases:List[NFTestCase]=None):
+    def __init__(self, cases:List[NFTestCase]=None):
         """ Constructor """
-        self._global = _global
-        self._env = _env or NFTestENV()
-        self._logger = generate_logger('NFTest', self._env)
+        self._global = None
+        self._env = NFTestENV()
+        self._logger = getLogger('NFTest')
         self.cases = cases or []
 
     def load_from_config(self, config_yaml:str, target_cases:List[str]):
@@ -24,7 +24,7 @@ class NFTestRunner():
         validate_yaml(config_yaml)
         with open(config_yaml, 'rt') as handle:
             config = yaml.safe_load(handle)
-            self._global = NFTestGlobal(**config['global'], _env=self._env)
+            self._global = NFTestGlobal(**config['global'])
             for case in config['cases']:
                 if 'asserts' in case:
                     asserts = [NFTestAssert(**ass, _env=self._env, _logger=self._logger) \
