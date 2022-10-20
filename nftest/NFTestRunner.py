@@ -1,13 +1,13 @@
 """ Test runner """
 import shutil
+from logging import getLogger
 from typing import List
 import yaml
-from logging import getLogger
 from nftest.NFTestGlobal import NFTestGlobal
 from nftest.NFTestAssert import NFTestAssert
 from nftest.NFTestCase import NFTestCase
 from nftest.NFTestENV import NFTestENV
-from nftest.common import validate_yaml, generate_logger
+from nftest.common import validate_yaml
 
 class NFTestRunner():
     """ This holds all test cases and global settings from a single yaml file.

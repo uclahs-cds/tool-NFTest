@@ -1,6 +1,7 @@
 """ Test NF-pipelines """
 from __future__ import annotations
 import argparse
+from logging import getLogger
 from pathlib import Path
 import shutil
 import pkg_resources
@@ -73,7 +74,7 @@ def init(_):
     """ Set up nftest """
     _env = NFTestENV()
     setup_loggers()
-    _logger = logging.getLogger('NFTestInit')
+    _logger = getLogger('NFTestInit')
 
     working_dir = Path(_env.NFT_INIT)
 

@@ -1,9 +1,8 @@
 """ Module containg singleton metaclass """
 
 class Singleton(type):
+    """ Singleton metaclass """
     _instances = {}
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:

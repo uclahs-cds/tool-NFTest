@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess as sp
 from typing import Callable
 from logging import getLogger
-from nftest.common import calculate_checksum, generate_logger
+from nftest.common import calculate_checksum
 from nftest.NFTestENV import NFTestENV
 
 
@@ -23,7 +23,7 @@ class NFTestAssert():
     def assert_expected(self):
         """ Assert the results match with the expected values. """
         if not Path(self.actual).exists():
-            self._logger.error(f'Actual file not found: {self.actual}')
+            self._logger.error('Actual file not found: %s', self.actual)
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.actual)
 

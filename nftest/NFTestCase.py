@@ -5,7 +5,7 @@ import subprocess as sp
 from subprocess import PIPE
 from logging import getLogger
 from typing import Callable, List, TYPE_CHECKING
-from nftest.common import remove_nextflow_logs, generate_logger
+from nftest.common import remove_nextflow_logs
 from nftest.NFTestENV import NFTestENV
 
 
