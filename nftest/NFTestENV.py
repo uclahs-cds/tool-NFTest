@@ -3,7 +3,7 @@ import os
 import datetime
 from dataclasses import dataclass, field
 from dotenv import load_dotenv
-from nftest.singleton import Singleton
+from nftest.Singleton import Singleton
 
 # pylint: disable=C0103
 @dataclass

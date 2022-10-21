@@ -1,4 +1,4 @@
-""" Module containg singleton metaclass """
+""" Module containg Singleton metaclass """
 
 class Singleton(type):
     """ Singleton metaclass """
