@@ -3,10 +3,11 @@ import os
 import datetime
 from dataclasses import dataclass, field
 from dotenv import load_dotenv
+from nftest.Singleton import Singleton
 
 # pylint: disable=C0103
 @dataclass
-class NFTestENV():
+class NFTestENV(metaclass=Singleton):
     """ Class for initializng and holding environment variables.
     """
     NFT_OUTPUT: str = field(init=False)

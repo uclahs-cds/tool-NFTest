@@ -3,9 +3,9 @@ from __future__ import annotations
 import shutil
 import subprocess as sp
 from subprocess import PIPE
-from logging import RootLogger
+from logging import getLogger
 from typing import Callable, List, TYPE_CHECKING
-from nftest.common import remove_nextflow_logs, generate_logger
+from nftest.common import remove_nextflow_logs
 from nftest.NFTestENV import NFTestENV
 
 
@@ -17,16 +17,15 @@ class NFTestCase():
     """ Defines the NF test case """
     # pylint: disable=R0902
     # pylint: disable=R0913
-    def __init__(self, _env:NFTestENV=None, _logger:RootLogger=None,
-            name:str=None, message:str=None, nf_script:str=None,
+    def __init__(self, name:str=None, message:str=None, nf_script:str=None,
             nf_configs:List[str]=None, params_file:str=None,
             output_directory_param_name:str='output_dir',
             asserts:List[NFTestAssert]=None, temp_dir:str=None,
             remove_temp:bool=None, clean_logs:bool=True,
             skip:bool=False, verbose:bool=False):
         """ Constructor """
-        self._env = _env or NFTestENV()
-        self._logger = _logger or generate_logger('NFTest', self._env)
+        self._env = NFTestENV()
+        self._logger = getLogger('NFTest')
         self.name = name
         self.message = message
         self.nf_script = nf_script
