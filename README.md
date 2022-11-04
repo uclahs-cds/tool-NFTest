@@ -5,6 +5,7 @@
     - [From GitHub](#install-directly-from-github)
     - [From local](#install-from-cloned-repository)
 - [Usage](#usage)
+    - [Quickstart](#quickstart)
 - [Configuration](#configuration)
     - [Environment settings](#environment-settings)
     - [YAML config](#nftest-yaml-config-file)
