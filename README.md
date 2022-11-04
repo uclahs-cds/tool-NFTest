@@ -28,7 +28,47 @@ pip install .
 ```
 
 ## Usage
+### Quickstart
 
+1. To initialize the testing framework, run the following in the desired directory:
+```
+nftest init
+```
+
+2. Define the parameters and test cases in the [environment](#environment-settings) and the [config files](#nftest-yaml-config-file).
+
+3. To launch the tests, run:
+```
+nftet run
+```
+
+
+### Initialize
+
+```
+usage: nftest init [-h]
+
+Initialize nftest by creating a nftest.yaml template.
+
+optional arguments:
+  -h, --help  show this help message and exit
+```
+
+### Run
+
+```
+usage: nftest run [-h] [-c [CONFIG_FILE]] [TEST_CASES [TEST_CASES ...]]
+
+Run nextflow tests.
+
+positional arguments:
+  TEST_CASES            Exact test case to run. (default: None)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c [CONFIG_FILE], --config-file [CONFIG_FILE]
+                        Path the the nextflow test config YAML file. If not given, it looks for nftest.yaml or nftest.yml (default: None)
+```
 `nftest` expects a config file named `nftest.yaml` or `nftest.yml` in the directory where the command is invoked.
 
 To run all test cases, simply run:
