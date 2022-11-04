@@ -1,5 +1,19 @@
 # NFTest
 
+- [Overview](#overview)
+- [Installation](#installation)
+    - [From GitHub](#install-directly-from-github)
+    - [From local](#install-from-cloned-repository)
+- [Usage](#usage)
+- [Configuration](#configuration)
+    - [Environment settings](#environment-settings)
+    - [YAML config](#nftest-yaml-config-file)
+        - [Global](#global)
+        - [Cases](#cases)
+            - [Asserts](#asserts)
+
+## Overview
+
 Command line tool for automated testing of Nextflow pipelines and scripts. The tool allows for automated assertions on output files and customizable output directory settings.
 
 ## Installation
