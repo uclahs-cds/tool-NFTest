@@ -1,5 +1,3 @@
-import mock
-import os
 from nftest.NFTestENV import NFTestENV
 
 def test_nftest_env_load(monkeypatch):
