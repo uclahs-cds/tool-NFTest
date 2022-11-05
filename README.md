@@ -40,7 +40,7 @@ nftest init
 
 3. To launch the tests, run:
 ```
-nftet run
+nftest run
 ```
 
 
