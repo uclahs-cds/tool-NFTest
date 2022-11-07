@@ -85,7 +85,7 @@ To run specific test case(s), use the following command
 
 ## Configuration
 ### Environment settings
-Testing runs can be configured through environment variables. Theses variables can be stored in `~/.env` or `<current working directory>/.env` in `dotenv` format. Alternatively, the variables can also be set through `export` (for `Bash` and `zsh` shells) in the shell prior to running the tool. The available environment variable settings are:
+Testing runs can be configured through environment variables. Theses variables can be stored in `~/.env` or `<current working directory>/.env` in `dotenv` format. See [template](.env-template) for an example. Alternatively, the variables can also be set through `export` (for `Bash` and `zsh` shells) in the shell prior to running the tool. The available environment variable settings are:
 
 |Variable|Description|Default|
 |:--:|:--:|:--:|
