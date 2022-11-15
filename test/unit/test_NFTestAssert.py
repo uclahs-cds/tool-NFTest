@@ -53,7 +53,7 @@ def test_assert_expected_pass(mock_assert):
     mock_assert.return_value.expect = test_path
     mock_assert.return_value.get_assert_method = lambda: lambda x, y: True
     mock_assert.return_value._logger.error = lambda x, y=None: None
-    # Mock the method being tested since pytest doesn't allowattributes starting with "assert"
+    # Mock the method being tested since pytest doesn't allow attributes starting with "assert"
     mock_assert.return_value.mock_assert_expected = NFTestAssert.assert_expected
 
     assert mock_assert().mock_assert_expected(mock_assert()) is None
