@@ -40,7 +40,23 @@ nftest init
 
 3. To launch the tests, run:
 ```
-nftet run
+usage: nftest run [-h] [-c [CONFIG_FILE]] [TEST_CASES [TEST_CASES ...]]
+
+Run nextflow tests.
+
+positional arguments:
+  TEST_CASES            Exact test case to run. (default: None)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c [CONFIG_FILE], --config-file [CONFIG_FILE]
+                        Path the the nextflow test config YAML file. If not given, it looks for nftest.yaml or nftest.yml (default: None)
+```
+`nftest` expects a config file named `nftest.yaml` or `nftest.yml` in the directory where the command is invoked.
+
+To run all test cases, simply run:
+```
+nftest run
 ```
 
 
@@ -85,7 +101,7 @@ To run specific test case(s), use the following command
 
 ## Configuration
 ### Environment settings
-Testing runs can be configured through environment variables. Theses variables can be stored in `~/.env` or `<current working directory>/.env` in `dotenv` format. Alternatively, the variables can also be set through `export` (for `Bash` and `zsh` shells) in the shell prior to running the tool. The available environment variable settings are:
+Testing runs can be configured through environment variables. Theses variables can be stored in `~/.env` or `<current working directory>/.env` in `dotenv` format. See [template](.env-template) for an example. Alternatively, the variables can also be set through `export` (for `Bash` and `zsh` shells) in the shell prior to running the tool. The available environment variable settings are:
 
 |Variable|Description|Default|
 |:--:|:--:|:--:|
