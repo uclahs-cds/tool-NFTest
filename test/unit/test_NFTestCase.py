@@ -1,6 +1,8 @@
+''' Test module for NFTestCase '''
 import mock
 from nftest.NFTestCase import NFTestCase
 
+# pylint: disable=W0212
 @mock.patch('nftest.NFTestCase.NFTestCase', wraps=NFTestCase)
 def test_combine_global(mock_case):
     ''' Tests for using global remove temp value '''
@@ -21,6 +23,7 @@ def test_combine_global(mock_case):
     assert case.temp_dir == test_temp_directory
     assert case.clean_logs == test_clean_logs
 
+# pylint: disable=W0212
 @mock.patch('nftest.NFTestCase.sp')
 @mock.patch('nftest.NFTestCase.NFTestCase', wraps=NFTestCase)
 def test_submit(mock_case, mock_sp):

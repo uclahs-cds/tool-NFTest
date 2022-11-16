@@ -1,21 +1,28 @@
-import mock
-import ctypes
+''' Test module for NFTestRunner '''
 from dataclasses import dataclass
 from unittest.mock import mock_open
+import mock
 from nftest.NFTestRunner import NFTestRunner
 
 @dataclass
 class RunnerData():
+    """ Basic dataclass for holding runner data """
     _global = None
     cases = []
 
+# pylint: disable=W0613
 @mock.patch('nftest.NFTestRunner.NFTestCase')
 @mock.patch('nftest.NFTestRunner.yaml.safe_load')
 @mock.patch('nftest.NFTestRunner.validate_yaml')
 @mock.patch('nftest.NFTestRunner.NFTestGlobal')
 @mock.patch('nftest.NFTestRunner.open', new_callable=mock_open)
 @mock.patch('nftest.NFTestRunner.NFTestRunner', wraps=NFTestRunner)
-def test_load_from_config(mock_runner, mock_open, mock_global, mock_validate_yaml, mock_yaml, mock_case):
+def test_load_from_config(mock_runner,
+    mock_runner_open,
+    mock_global,
+    mock_validate_yaml,
+    mock_yaml,
+    mock_case):
     ''' Tests for loading from config file '''
     mock_validate_yaml.return_value = lambda x: True
     mock_global.return_value = lambda: None
