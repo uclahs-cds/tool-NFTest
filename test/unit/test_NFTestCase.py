@@ -5,7 +5,7 @@ from nftest.NFTestCase import NFTestCase
 # pylint: disable=W0212
 @mock.patch('nftest.NFTestCase.NFTestCase', wraps=NFTestCase)
 def test_combine_global(mock_case):
-    ''' Tests for using global remove temp value '''
+    ''' Tests for using global config parameters '''
     test_remove_temp = True
     test_temp_directory = 'global_temp_dir'
     test_clean_logs = True

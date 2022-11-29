@@ -7,7 +7,7 @@ from nftest.NFTestAssert import NFTestAssert
 # pylint: disable=W0212
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_get_assert_method_value_error(mock_assert):
-    ''' Tests value error from get_assert_method '''
+    ''' Tests value error from get_assert_method when given `method` is not supported '''
     mock_assert.return_value.script = None
     mock_assert.return_value.method = 'nomethod'
     mock_assert.return_value._logger.error = lambda x, y: None
