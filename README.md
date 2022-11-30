@@ -12,6 +12,8 @@
         - [Global](#global)
         - [Cases](#cases)
             - [Asserts](#asserts)
+- [Development](#development)
+    - [Testing](#testing)
 
 ## Overview
 
@@ -159,3 +161,13 @@ Settings available for each assert:
 |`expect`|Path to expected output file for comparison to `actual`.|_required_|
 |`method`|Comparison method to be used for comparing files. Available: `md5`|`md5`|
 |`script`|Custom comparison script that can be run from the command line with 2 positional arguments: `actual` and then `expect`. Script must return an exit code of `0` for success and anything else for failure.|`None`|
+
+## Development
+### Testing
+Testing for NFTest itself can be done through `pytest` by running the following:
+```
+pytest
+```
+in the root of the repository directory.
+
+Testing requires that the `pytest` library be installed and available.
