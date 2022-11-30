@@ -8,12 +8,15 @@ from nftest.NFTestAssert import NFTestAssert
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_get_assert_method_value_error(mock_assert):
     ''' Tests value error from get_assert_method when given `method` is not supported '''
+    assert_method = 'nomethod'
     mock_assert.return_value.script = None
-    mock_assert.return_value.method = 'nomethod'
+    mock_assert.return_value.method = assert_method
     mock_assert.return_value._logger.error = lambda x, y: None
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as val_error:
         mock_assert.get_assert_method(mock_assert())
+
+    assert str(val_error.value) == f'assert method {assert_method} unknown.'
 
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_get_assert_method_script(mock_assert):
