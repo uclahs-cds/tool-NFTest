@@ -1,10 +1,10 @@
+# pylint: disable=W0212
 ''' Test module for NFTestAssert '''
 import os
 import mock
 import pytest
 from nftest.NFTestAssert import NFTestAssert
 
-# pylint: disable=W0212
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_get_assert_method_value_error(mock_assert):
     ''' Tests value error from get_assert_method when given `method` is not supported '''
@@ -15,7 +15,6 @@ def test_get_assert_method_value_error(mock_assert):
     with pytest.raises(ValueError):
         mock_assert.get_assert_method(mock_assert())
 
-# pylint: disable=W0212
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_get_assert_method_script(mock_assert):
     ''' Tests getting script function from get_assert_method '''
@@ -25,7 +24,6 @@ def test_get_assert_method_script(mock_assert):
 
     assert callable(mock_assert.get_assert_method(mock_assert()))
 
-# pylint: disable=W0212
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_get_assert_method_method(mock_assert):
     ''' Tests getting method function from get_assert_method '''
@@ -35,7 +33,6 @@ def test_get_assert_method_method(mock_assert):
 
     assert callable(mock_assert.get_assert_method(mock_assert()))
 
-# pylint: disable=W0212
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_assert_expected_fail(mock_assert):
     ''' Tests for failing assertion '''
@@ -49,7 +46,6 @@ def test_assert_expected_fail(mock_assert):
     with pytest.raises(AssertionError):
         mock_assert().mock_assert_expected(mock_assert())
 
-# pylint: disable=W0212
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_assert_expected_pass(mock_assert):
     ''' Tests for passing assertion '''
