@@ -1,6 +1,5 @@
 # pylint: disable=W0212
 ''' Test module for NFTestAssert '''
-import os
 import mock
 import pytest
 from nftest.NFTestAssert import NFTestAssert
@@ -36,10 +35,12 @@ def test_get_assert_method_method(mock_assert):
 
     assert callable(mock_assert.get_assert_method(mock_assert()))
 
+@mock.patch('nftest.NFTestAssert.Path')
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
-def test_assert_expected_fail(mock_assert):
+def test_assert_expected_fail(mock_assert, mock_path):
     ''' Tests for failing assertion '''
-    test_path = os.getcwd()
+    test_path = '/A/path/for/tests'
+    mock_path.return_value.exists = lambda: True
     mock_assert.return_value.actual = test_path
     mock_assert.return_value.expect = test_path
     mock_assert.return_value.get_assert_method = lambda: lambda x, y: False
@@ -49,10 +50,12 @@ def test_assert_expected_fail(mock_assert):
     with pytest.raises(AssertionError):
         mock_assert().mock_assert_expected(mock_assert())
 
+@mock.patch('nftest.NFTestAssert.Path')
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
-def test_assert_expected_pass(mock_assert):
+def test_assert_expected_pass(mock_assert, mock_path):
     ''' Tests for passing assertion '''
-    test_path = os.getcwd()
+    test_path = '/A/path/for/tests'
+    mock_path.return_value.exists = lambda: True
     mock_assert.return_value.actual = test_path
     mock_assert.return_value.expect = test_path
     mock_assert.return_value.get_assert_method = lambda: lambda x, y: True
