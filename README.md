@@ -169,5 +169,3 @@ Testing for NFTest itself can be done through `pytest` by running the following:
 pytest
 ```
 in the root of the repository directory.
-
-Testing requires that the `pytest` library be installed and available.
