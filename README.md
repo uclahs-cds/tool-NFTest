@@ -12,6 +12,8 @@
         - [Global](#global)
         - [Cases](#cases)
             - [Asserts](#asserts)
+- [Development](#development)
+    - [Testing](#testing)
 
 ## Overview
 
@@ -39,6 +41,22 @@ nftest init
 2. Define the parameters and test cases in the [environment](#environment-settings) and the [config files](#nftest-yaml-config-file).
 
 3. To launch the tests, run:
+```
+usage: nftest run [-h] [-c [CONFIG_FILE]] [TEST_CASES [TEST_CASES ...]]
+
+Run nextflow tests.
+
+positional arguments:
+  TEST_CASES            Exact test case to run. (default: None)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c [CONFIG_FILE], --config-file [CONFIG_FILE]
+                        Path the the nextflow test config YAML file. If not given, it looks for nftest.yaml or nftest.yml (default: None)
+```
+`nftest` expects a config file named `nftest.yaml` or `nftest.yml` in the directory where the command is invoked.
+
+To run all test cases, simply run:
 ```
 nftest run
 ```
@@ -143,3 +161,11 @@ Settings available for each assert:
 |`expect`|Path to expected output file for comparison to `actual`.|_required_|
 |`method`|Comparison method to be used for comparing files. Available: `md5`|`md5`|
 |`script`|Custom comparison script that can be run from the command line with 2 positional arguments: `actual` and then `expect`. Script must return an exit code of `0` for success and anything else for failure.|`None`|
+
+## Development
+### Testing
+Testing for NFTest itself can be done through `pytest` by running the following:
+```
+pytest
+```
+in the root of the repository directory.
