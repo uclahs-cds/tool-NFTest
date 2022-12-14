@@ -1,8 +1,7 @@
 ---
-Category: 'tool'
-Description: 'CLI testing tool for Nextflow pipelines'
-Maintainers: ['ChenghaoZhu@mednet.ucla.edu']
-Contributors: 'Chenghao Zhu'
-Languages: ['python']
-Dependencies: 'PyYamle'
-References: ''
+category: 'tool'
+description: 'CLI testing tool for Nextflow pipelines'
+maintainers: ['ChenghaoZhu@mednet.ucla.edu', 'YashPatel@mednet.ucla.edu']
+languages: ['python']
+dependencies: [PyYAML, python-dotenv, pytest, mock]
+references: ''

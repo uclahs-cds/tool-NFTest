@@ -14,6 +14,8 @@
             - [Asserts](#asserts)
 - [Development](#development)
     - [Testing](#testing)
+- [Discussions](#discussions)
+- [Contributors](#contributors)
 
 ## Overview
 
@@ -169,3 +171,15 @@ Testing for NFTest itself can be done through `pytest` by running the following:
 pytest
 ```
 in the root of the repository directory.
+
+## Discussions
+
+- [Issue tracker](https://github.com/uclahs-cds/tool-NF-test/issues) to report errors and enhancement ideas.
+- Discussions can take place in [tool-NF-test Discussions](https://github.com/uclahs-cds/tool-NF-test/discussions)
+- [tool-NF-test pull requests](https://github.com/uclahs-cds/tool-NF-test/pulls) are also open for discussion
+
+---
+
+## Contributors
+
+Please see list of [Contributors](https://github.com/uclahs-cds/tool-NF-test/graphs/contributors) at GitHub.
