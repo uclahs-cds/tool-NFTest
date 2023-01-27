@@ -36,8 +36,11 @@ class NFTestRunner():
                 del case['nf_config']
                 test_case = NFTestCase(**case)
                 test_case.combine_global(self._global)
-                if target_cases and not test_case.name in target_cases:
-                    continue
+                if target_cases:
+                    if test_case.name in target_cases:
+                        test_case.skip = False
+                    else:
+                        continue
                 self.cases.append(test_case)
 
     def main(self):
