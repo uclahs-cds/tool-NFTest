@@ -8,6 +8,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ---
 
 ## [Unreleased]
+
+---
+
+## [1.0.0-rc.2] - 2023-02-13
+### Added
+- Case name to output directory path to avoid over-writing
 ### Changed
 - Override `skip` from configuration YAML for command line test cases
 
