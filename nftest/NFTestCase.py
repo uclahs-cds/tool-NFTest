@@ -1,6 +1,8 @@
 """ NF Test case """
 from __future__ import annotations
 import shutil
+import re
+from pathlib import Path
 import subprocess as sp
 from subprocess import PIPE
 from logging import getLogger
@@ -27,17 +29,28 @@ class NFTestCase():
         self._env = NFTestENV()
         self._logger = getLogger('NFTest')
         self.name = name
+        self.name_for_output = re.sub(r'[^a-zA-Z0-9_\-.]', '', self.name.replace(' ', '-'))
         self.message = message
         self.nf_script = nf_script
         self.nf_configs = nf_configs or []
         self.params_file = params_file
         self.output_directory_param_name = output_directory_param_name
-        self.asserts = asserts or []
+        self.asserts = self.resolve_actual(asserts)
         self.temp_dir = temp_dir
         self.remove_temp = remove_temp
         self.clean_logs = clean_logs
         self.skip = skip
         self.verbose = verbose
+
+    def resolve_actual(self, asserts:List[NFTestAssert]=None):
+        """ Resolve the file path for actual file """
+        if not asserts:
+            return None
+
+        for assertion in asserts:
+            assertion.actual = Path(self._env.NFT_OUTPUT)/self.name_for_output/assertion.actual
+
+        return asserts
 
     # pylint: disable=E0213
     def test_wrapper(func:Callable):
@@ -77,8 +90,9 @@ class NFTestCase():
         for nf_config in self.nf_configs:
             config_arg += f'-c {nf_config} '
         params_file_arg = f"-params-file {self.params_file}" if self.params_file else ""
+        output_directory_with_case = Path(self._env.NFT_OUTPUT)/self.name_for_output
         output_directory_arg = f"--{self.output_directory_param_name} " \
-            f"{self._env.NFT_OUTPUT}"
+            f"{output_directory_with_case}"
         cmd = f"""
         NXF_WORK={self.temp_dir} \
         nextflow run \
