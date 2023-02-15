@@ -45,7 +45,7 @@ class NFTestCase():
     def resolve_actual(self, asserts:List[NFTestAssert]=None):
         """ Resolve the file path for actual file """
         if not asserts:
-            return None
+            return []
 
         for assertion in asserts:
             assertion.actual = Path(self._env.NFT_OUTPUT)/self.name_for_output/assertion.actual
