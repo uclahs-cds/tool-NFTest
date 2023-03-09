@@ -15,7 +15,7 @@ class NFTestAssert():
         """ Constructor """
         self._env = NFTestENV()
         self._logger = getLogger('NFTest')
-        self.actual = os.path.join(self._env.NFT_OUTPUT, actual)
+        self.actual = actual
         self.expect = expect
         self.method = method
         self.script = script
