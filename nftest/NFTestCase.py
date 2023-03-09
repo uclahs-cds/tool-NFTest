@@ -20,7 +20,7 @@ class NFTestCase():
     # pylint: disable=R0902
     # pylint: disable=R0913
     def __init__(self, name:str=None, message:str=None, nf_script:str=None,
-            nf_configs:List[str]=None, params_file:str=None,
+            nf_configs:List[str]=None, profiles:List[str]=None, params_file:str=None,
             output_directory_param_name:str='output_dir',
             asserts:List[NFTestAssert]=None, temp_dir:str=None,
             remove_temp:bool=None, clean_logs:bool=True,
@@ -33,6 +33,7 @@ class NFTestCase():
         self.message = message
         self.nf_script = nf_script
         self.nf_configs = nf_configs or []
+        self.profiles = profiles or []
         self.params_file = params_file
         self.output_directory_param_name = output_directory_param_name
         self.asserts = self.resolve_actual(asserts)
@@ -90,6 +91,7 @@ class NFTestCase():
         for nf_config in self.nf_configs:
             config_arg += f'-c {nf_config} '
         params_file_arg = f"-params-file {self.params_file}" if self.params_file else ""
+        profiles_arg = f"-profile {','.join(self.profiles)}" if self.profiles else ""
         output_directory_with_case = Path(self._env.NFT_OUTPUT)/self.name_for_output
         output_directory_arg = f"--{self.output_directory_param_name} " \
             f"{output_directory_with_case}"
@@ -97,6 +99,7 @@ class NFTestCase():
         NXF_WORK={self.temp_dir} \
         nextflow run \
             {self.nf_script} \
+            {profiles_arg} \
             {config_arg} \
             {params_file_arg} \
             {output_directory_arg}
