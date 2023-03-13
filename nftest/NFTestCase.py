@@ -3,6 +3,7 @@ from __future__ import annotations
 import shutil
 import re
 from pathlib import Path
+from shlex import quote
 import subprocess as sp
 from subprocess import PIPE
 from logging import getLogger
@@ -91,7 +92,7 @@ class NFTestCase():
         for nf_config in self.nf_configs:
             config_arg += f'-c {nf_config} '
         params_file_arg = f"-params-file {self.params_file}" if self.params_file else ""
-        profiles_arg = f"-profile {','.join(self.profiles)}" if self.profiles else ""
+        profiles_arg = f"-profile {quote(','.join(self.profiles))}" if self.profiles else ""
         output_directory_with_case = Path(self._env.NFT_OUTPUT)/self.name_for_output
         output_directory_arg = f"--{self.output_directory_param_name} " \
             f"{output_directory_with_case}"
