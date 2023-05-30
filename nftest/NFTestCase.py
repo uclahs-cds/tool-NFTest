@@ -24,7 +24,7 @@ class NFTestCase():
             nf_configs:List[str]=None, profiles:List[str]=None, params_file:str=None,
             output_directory_param_name:str='output_dir',
             asserts:List[NFTestAssert]=None, temp_dir:str=None,
-            remove_temp:bool=None, clean_logs:bool=True,
+            remove_temp:bool=None, clean_logs:bool=None,
             skip:bool=False, verbose:bool=False):
         """ Constructor """
         self._env = NFTestENV()
@@ -136,7 +136,7 @@ class NFTestCase():
         if not self.temp_dir:
             self.temp_dir = _global.temp_dir
 
-        if not self.clean_logs:
+        if self.clean_logs is None:
             self.clean_logs = _global.clean_logs
 
     def print_prolog(self):

@@ -11,6 +11,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [1.0.0-rc.3] - 2023-05-25
+### Fixed
+- Properly set default value of `clean_logs` according to case and global settings
+
+---
+
 ## [1.0.0-rc.2] - 2023-03-09
 ### Added
 - Case name to output directory path to avoid over-writing
