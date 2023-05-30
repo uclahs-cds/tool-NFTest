@@ -136,7 +136,7 @@ class NFTestCase():
         if not self.temp_dir:
             self.temp_dir = _global.temp_dir
 
-        if not self.clean_logs:
+        if self.clean_logs is None:
             self.clean_logs = _global.clean_logs
 
     def print_prolog(self):
