@@ -71,7 +71,7 @@ def setup_loggers():
     # Make a stream handler with the requested verbosity
     stream_handler = logging.StreamHandler(sys.stdout)
     try:
-        stream_handler.setLevel(logging._checkLevel(_env.NFT_LOG_LEVEL))
+        stream_handler.setLevel(logging._checkLevel(_env.NFT_LOG_LEVEL)) # pylint: disable=W0212
     except ValueError:
         stream_handler.setLevel(logging.INFO)
 

@@ -1,16 +1,17 @@
 """ NF Test case """
 from __future__ import annotations
-import os
-import shutil
+
 import re
-import logging
+import selectors
+import shutil
+import subprocess as sp
+
+from logging import getLogger, INFO, ERROR
 from pathlib import Path
 from shlex import quote
-import selectors
-import subprocess as sp
 from subprocess import PIPE
-from logging import getLogger
 from typing import Callable, List, TYPE_CHECKING
+
 from nftest.common import remove_nextflow_logs
 from nftest.NFTestENV import NFTestENV
 
@@ -122,12 +123,12 @@ class NFTestCase():
                 selector.register(
                     fileobj=process.stdout,
                     events=selectors.EVENT_READ,
-                    data=logging.INFO
+                    data=INFO
                 )
                 selector.register(
                     fileobj=process.stderr,
                     events=selectors.EVENT_READ,
-                    data=logging.ERROR
+                    data=ERROR
                 )
 
                 while process.poll() is None:

@@ -54,7 +54,7 @@ class NFTestAssert():
             return func
         if self.method == 'md5':
             def func(actual, expect):
-                self._logger.debug(f"md5 {actual} {expect}")
+                self._logger.debug("md5 %s %s", actual, expect)
                 actual_value = calculate_checksum(actual)
                 expect_value = calculate_checksum(expect)
                 return actual_value == expect_value
