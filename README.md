@@ -25,7 +25,7 @@ Command line tool for automated testing of Nextflow pipelines and scripts. The t
 ## Installation
 ### Install directly from GitHub
 ```
-pip install git+ssh://git@github.com/uclahs-cds/tool-NF-test.git
+pip install git+ssh://git@github.com/uclahs-cds/tool-NFTest.git
 ```
 ### Install from cloned repository
 ```
@@ -176,15 +176,15 @@ in the root of the repository directory.
 
 ## Discussions
 
-- [Issue tracker](https://github.com/uclahs-cds/tool-NF-test/issues) to report errors and enhancement ideas.
-- Discussions can take place in [tool-NF-test Discussions](https://github.com/uclahs-cds/tool-NF-test/discussions)
-- [tool-NF-test pull requests](https://github.com/uclahs-cds/tool-NF-test/pulls) are also open for discussion
+- [Issue tracker](https://github.com/uclahs-cds/tool-NFTest/issues) to report errors and enhancement ideas.
+- Discussions can take place in [tool-NFTest Discussions](https://github.com/uclahs-cds/tool-NFTest/discussions)
+- [tool-NFTest pull requests](https://github.com/uclahs-cds/tool-NFTest/pulls) are also open for discussion
 
 ---
 
 ## Contributors
 
-Please see list of [Contributors](https://github.com/uclahs-cds/tool-NF-test/graphs/contributors) at GitHub.
+Please see list of [Contributors](https://github.com/uclahs-cds/tool-NFTest/graphs/contributors) at GitHub.
 
 ---
 
