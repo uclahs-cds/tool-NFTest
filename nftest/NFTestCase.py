@@ -1,9 +1,12 @@
 """ NF Test case """
 from __future__ import annotations
+import os
 import shutil
 import re
+import logging
 from pathlib import Path
 from shlex import quote
+import selectors
 import subprocess as sp
 from subprocess import PIPE
 from logging import getLogger
@@ -29,6 +32,7 @@ class NFTestCase():
         """ Constructor """
         self._env = NFTestENV()
         self._logger = getLogger('NFTest')
+        self._nflogger = getLogger("NextFlow")
         self.name = name
         self.name_for_output = re.sub(r'[^a-zA-Z0-9_\-.]', '', self.name.replace(' ', '-'))
         self.message = message
@@ -107,22 +111,40 @@ class NFTestCase():
         """
         self._logger.info(' '.join(cmd.split()))
 
-        res = sp.run(cmd,
-            shell=True,
-            stdout=PIPE,
-            stderr=PIPE,
-            check=False,
-            universal_newlines=True,
-            capture_output=(not self.verbose))
+        with sp.Popen(cmd,
+                      shell=True,
+                      stdout=PIPE,
+                      stderr=PIPE,
+                      universal_newlines=True) as process:
 
-        self._logger.info(res.stdout)
-        if res.stderr.strip():
-            self._logger.error(res.stderr)
+            # Route stdout to INFO and stderr to ERROR in real-time
+            with selectors.DefaultSelector() as selector:
+                selector.register(
+                    fileobj=process.stdout,
+                    events=selectors.EVENT_READ,
+                    data=logging.INFO
+                )
+                selector.register(
+                    fileobj=process.stderr,
+                    events=selectors.EVENT_READ,
+                    data=logging.ERROR
+                )
 
-        return res
+                while process.poll() is None:
+                    events = selector.select()
+                    for key, _ in events:
+                        line = key.fileobj.readline()
+                        if line:
+                            # The only case in which this won't be true is when
+                            # the pipe is closed
+                            self._nflogger.log(
+                                level=key.data,
+                                msg=line.rstrip()
+                            )
 
+        return process
 
-    def combine_global(self, _global:NFTestGlobal) -> None:
+    def combine_global(self, _global: NFTestGlobal) -> None:
         """ Combine test case configs with the global configs. """
         if _global.nf_config:
             self.nf_configs.insert(0, _global.nf_config)
