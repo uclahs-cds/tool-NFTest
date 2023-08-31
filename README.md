@@ -16,6 +16,7 @@
     - [Testing](#testing)
 - [Discussions](#discussions)
 - [Contributors](#contributors)
+- [License](#license)
 
 ## Overview
 
