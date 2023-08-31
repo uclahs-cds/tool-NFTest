@@ -184,3 +184,18 @@ in the root of the repository directory.
 ## Contributors
 
 Please see list of [Contributors](https://github.com/uclahs-cds/tool-NF-test/graphs/contributors) at GitHub.
+
+---
+
+## License
+Author: Yash Patel, Chenghao Zhu, Helena Winata
+
+NFTest is licensed under the GNU General Public License version 2. See the file LICENSE for the terms of the GNU GPL license.
+
+NFTest is a tool for automating Nextflow pipeline testing.
+
+Copyright (C) 2021-2023 University of California Los Angeles ("Boutros Lab") All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
