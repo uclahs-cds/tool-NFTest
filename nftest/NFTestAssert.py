@@ -35,6 +35,7 @@ class NFTestAssert():
         assert_method = self.get_assert_method()
         try:
             assert assert_method(self.actual, self.expect)
+            self._logger.debug('Assertion passed')
         except AssertionError as error:
             self._logger.error('Assertion failed')
             self._logger.error('Actual: %s', self.actual)
@@ -47,11 +48,13 @@ class NFTestAssert():
         if self.script is not None:
             def func(actual, expect):
                 cmd = f"{self.script} {actual} {expect}"
+                self._logger.debug(cmd)
                 process_out = sp.run(cmd, shell=True, check=False)
                 return process_out.returncode == 0
             return func
         if self.method == 'md5':
             def func(actual, expect):
+                self._logger.debug("md5 %s %s", actual, expect)
                 actual_value = calculate_checksum(actual)
                 expect_value = calculate_checksum(expect)
                 return actual_value == expect_value

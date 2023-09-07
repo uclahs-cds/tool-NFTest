@@ -53,39 +53,30 @@ def print_version_and_exist():
     print(__version__, file=sys.stdout)
     sys.exit()
 
+
 def setup_loggers():
     """ Initialize loggers for both init and run """
-    _ = generate_logger('NFTest')
-    _ = generate_logger('NFTestInit')
-
-# pylint: disable=W0212
-def generate_logger(logger_name:str):
-    """ Generate program-specific logger """
-    _env = NFTestENV()
-    try:
-        log_level = logging._checkLevel(_env.NFT_LOG_LEVEL)
-    except ValueError:
-        log_level = logging._checkLevel('INFO')
-
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(log_level)
-
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # Always log times in UTC
     logging.Formatter.converter = time.gmtime
 
+    _env = NFTestENV()
+
+    # Make a file handler that accepts all logs
     try:
         file_handler = logging.FileHandler(_env.NFT_LOG)
+        file_handler.setLevel(logging.DEBUG)
     except (FileNotFoundError, PermissionError) as file_error:
         raise Exception(f'Unable to create log file: {_env.NFT_LOG}') from file_error
-    file_handler.setLevel(log_level)
 
+    # Make a stream handler with the requested verbosity
     stream_handler = logging.StreamHandler(sys.stdout)
-    stream_handler.setLevel(log_level)
+    try:
+        stream_handler.setLevel(logging._checkLevel(_env.NFT_LOG_LEVEL)) # pylint: disable=W0212
+    except ValueError:
+        stream_handler.setLevel(logging.INFO)
 
-    file_handler.setFormatter(formatter)
-    stream_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
-    logger.addHandler(stream_handler)
-
-    return logger
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=(file_handler, stream_handler)
+    )
