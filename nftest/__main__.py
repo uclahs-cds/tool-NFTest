@@ -83,7 +83,7 @@ def init(_):
             _logger.warning('%s does not exist, attempting to create it...', working_dir)
             working_dir.mkdir(parents=True)
         except (OSError, PermissionError) as file_error:
-            raise Exception(f'Failed to create {working_dir}. ' \
+            raise RuntimeError(f'Failed to create {working_dir}. ' \
                 'Please ensure proper permissions are set.') \
                 from file_error
 
