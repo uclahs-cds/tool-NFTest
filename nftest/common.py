@@ -66,7 +66,7 @@ def setup_loggers():
         file_handler = logging.FileHandler(_env.NFT_LOG)
         file_handler.setLevel(logging.DEBUG)
     except (FileNotFoundError, PermissionError) as file_error:
-        raise Exception(f'Unable to create log file: {_env.NFT_LOG}') from file_error
+        raise RuntimeError(f'Unable to create log file: {_env.NFT_LOG}') from file_error
 
     # Make a stream handler with the requested verbosity
     stream_handler = logging.StreamHandler(sys.stdout)
