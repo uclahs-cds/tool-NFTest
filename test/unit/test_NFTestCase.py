@@ -1,7 +1,7 @@
 # pylint: disable=W0212
 ''' Test module for NFTestCase '''
-import mock
 from types import SimpleNamespace
+import mock
 from nftest.NFTestCase import NFTestCase
 
 @mock.patch('nftest.NFTestCase.NFTestCase', wraps=NFTestCase)
