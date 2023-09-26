@@ -31,7 +31,9 @@ def test_submit(mock_case, mock_sp, mock_selectors):
     ''' Tests for submission step '''
     test_stdout = 'hello world'
 
-    mock_sp.return_value.__enter__ = lambda x: SimpleNamespace(**{'stdout': test_stdout, 'stderr': '', 'poll': lambda: True})
+    mock_sp.return_value.__enter__ = lambda x: SimpleNamespace(
+        **{'stdout': test_stdout, 'stderr': '', 'poll': lambda: True}
+    )
     mock_selectors.DefaultSelector.register.return_value = lambda x, y, z: None
 
     mock_case.return_value.params_file = ''
