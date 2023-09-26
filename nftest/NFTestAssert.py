@@ -1,14 +1,20 @@
 """ NF Test assert """
+import datetime
 import errno
-import selectors
 import os
-from pathlib import Path
+import selectors
 import subprocess as sp
+from pathlib import Path
 from subprocess import PIPE
 from typing import Callable
 from logging import getLogger, DEBUG, ERROR
+
 from nftest.common import calculate_checksum
 from nftest.NFTestENV import NFTestENV
+
+
+class NotUpdatedError(Exception):
+    pass
 
 
 class NFTestAssert():
@@ -22,6 +28,8 @@ class NFTestAssert():
         self.method = method
         self.script = script
 
+        self.startup_time = datetime.datetime.now(tz=datetime.timezone.utc)
+
     def assert_expected(self):
         """ Assert the results match with the expected values. """
         if not Path(self.actual).exists():
@@ -33,6 +41,18 @@ class NFTestAssert():
             self._logger.error('Expect file not found: %s', self.expect)
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.expect)
+
+        file_mod_time = datetime.datetime.fromtimestamp(
+            Path(self.actual).stat().st_mtime,
+            tz=datetime.timezone.utc
+
+        )
+        self._logger.debug("Test creation time: %s", self.startup_time)
+        self._logger.debug("Actual mod time:    %s", file_mod_time)
+        if file_mod_time <= self.startup_time:
+            raise NotUpdatedError(
+                f"{str(self.actual)} was not modified by this pipeline"
+            )
 
         assert_method = self.get_assert_method()
         try:
