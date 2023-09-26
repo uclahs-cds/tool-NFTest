@@ -14,6 +14,7 @@ from nftest.NFTestENV import NFTestENV
 
 
 class NotUpdatedError(Exception):
+    "Indicate that a file was not updated during a pipeline run."
     pass
 
 
