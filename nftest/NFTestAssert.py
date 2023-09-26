@@ -1,10 +1,12 @@
 """ NF Test assert """
 import errno
+import selectors
 import os
 from pathlib import Path
 import subprocess as sp
+from subprocess import PIPE
 from typing import Callable
-from logging import getLogger
+from logging import getLogger, DEBUG, ERROR
 from nftest.common import calculate_checksum
 from nftest.NFTestENV import NFTestENV
 
@@ -49,8 +51,36 @@ class NFTestAssert():
             def func(actual, expect):
                 cmd = f"{self.script} {actual} {expect}"
                 self._logger.debug(cmd)
-                process_out = sp.run(cmd, shell=True, check=False)
-                return process_out.returncode == 0
+                with sp.Popen(cmd,
+                              shell=True,
+                              stdout=PIPE,
+                              stderr=PIPE,
+                              universal_newlines=True) as process:
+                    # Route stdout to INFO and stderr to ERROR in real-time
+                    with selectors.DefaultSelector() as selector:
+                        selector.register(
+                            fileobj=process.stdout,
+                            events=selectors.EVENT_READ,
+                            data=DEBUG
+                        )
+                        selector.register(
+                            fileobj=process.stderr,
+                            events=selectors.EVENT_READ,
+                            data=ERROR
+                        )
+
+                        while process.poll() is None:
+                            events = selector.select()
+                            for key, _ in events:
+                                line = key.fileobj.readline()
+                                if line:
+                                    # The only case in which this won't be true is when
+                                    # the pipe is closed
+                                    self._logger.log(
+                                        level=key.data,
+                                        msg=line.rstrip()
+                                    )
+                return process.returncode == 0
             return func
         if self.method == 'md5':
             def func(actual, expect):
