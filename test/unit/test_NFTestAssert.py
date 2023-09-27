@@ -38,56 +38,66 @@ def test_get_assert_method_method(mock_assert):
 
     assert callable(mock_assert.get_assert_method(mock_assert()))
 
-@mock.patch('nftest.NFTestAssert.Path', autospec=True)
+
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
-def test_assert_expected_fail(mock_assert, mock_path):
+def test_assert_exists(mock_assert):
+    '''Tests the functionality of the assert_exists method'''
+    # assert_exists() should raise an AssertionError if either or both of
+    # actual and expect do not exist.
+    # Tuples of (actual.exists(), expect.exists(), raises AssertionError)
+    cases = (
+        (True, True, False),
+        (False, True, True),
+        (True, False, True),
+        (False, False, True),
+    )
+
+    for case in cases:
+        mock_assert.return_value.actual.exists.return_value = case[0]
+        mock_assert.return_value.expect.exists.return_value = case[1]
+
+        if case[2]:
+            with pytest.raises(FileNotFoundError):
+                NFTestAssert.assert_exists(mock_assert())
+        else:
+            NFTestAssert.assert_exists(mock_assert())
+
+
+@mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
+def test_assert_updated(mock_assert):
     ''' Tests for failing assertion '''
     timestamp = 1689805542.4275217
 
-    test_path = '/A/path/for/tests'
-    mock_path.return_value.exists.return_value = True
-    mock_path.return_value.stat.return_value.st_mtime = timestamp
-    mock_assert.return_value.actual = test_path
-    mock_assert.return_value.expect = test_path
-    # Set the test start time to be before the timestamp
     mock_assert.return_value.startup_time = datetime.datetime.fromtimestamp(
-        timestamp-1,
+        timestamp,
         tz=datetime.timezone.utc
     )
-    mock_assert.return_value.get_assert_method = lambda: lambda x, y: False
-    mock_assert.return_value._logger.error = lambda x, y=None: None
-    mock_assert.return_value.mock_assert_expected = NFTestAssert.assert_expected
 
+    # Test expected to fail with a time before the start time
+    mock_assert.return_value.actual.stat.return_value.st_mtime = timestamp - 1
     with pytest.raises(AssertionError):
-        mock_assert().mock_assert_expected(mock_assert())
+        NFTestAssert.assert_updated(mock_assert())
 
-@mock.patch('nftest.NFTestAssert.Path', autospec=True)
+    # Test expected to fail with a time equal to the start time
+    mock_assert.return_value.actual.stat.return_value.st_mtime = timestamp
+    with pytest.raises(AssertionError):
+        NFTestAssert.assert_updated(mock_assert())
+
+    # Test expected to pass with a time after to the start time
+    mock_assert.return_value.actual.stat.return_value.st_mtime = timestamp + 1
+    NFTestAssert.assert_updated(mock_assert())
+
+
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
-def test_assert_expected_pass(mock_assert, mock_path):
+def test_assert_expected(mock_assert):
     ''' Tests for passing assertion '''
-    timestamp = 1689805542.4275217
-    test_path = '/A/path/for/tests'
-    mock_path.return_value.exists.return_value = True
-    mock_path.return_value.stat.return_value.st_mtime = timestamp
-    mock_assert.return_value.actual = test_path
-    mock_assert.return_value.expect = test_path
-    # Set the test start time to be before the timestamp
-    mock_assert.return_value.startup_time = datetime.datetime.fromtimestamp(
-        timestamp-1,
-        tz=datetime.timezone.utc
-    )
-    mock_assert.return_value.get_assert_method = lambda: lambda x, y: True
     mock_assert.return_value._logger.error = lambda x, y=None: None
-    # Mock the method being tested since pytest doesn't allow attributes starting with "assert"
-    mock_assert.return_value.mock_assert_expected = NFTestAssert.assert_expected
 
-    assert mock_assert().mock_assert_expected(mock_assert()) is None
+    # A passing test should not raise an error
+    mock_assert.return_value.get_assert_method = lambda: lambda x, y: True
+    NFTestAssert.assert_expected(mock_assert())
 
-    # Set the test start time to be after the timestamp
-    mock_assert.return_value.startup_time = datetime.datetime.fromtimestamp(
-        timestamp+1,
-        tz=datetime.timezone.utc
-    )
-
+    # A failing test should raise an error
+    mock_assert.return_value.get_assert_method = lambda: lambda x, y: False
     with pytest.raises(AssertionError):
-        mock_assert().mock_assert_expected(mock_assert())
+        NFTestAssert.assert_expected(mock_assert())

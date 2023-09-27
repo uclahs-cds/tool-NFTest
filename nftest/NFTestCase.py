@@ -84,6 +84,8 @@ class NFTestCase():
             return
         for ass in self.asserts:
             try:
+                ass.assert_exists()
+                ass.assert_updated()
                 ass.assert_expected()
             except Exception as error:
                 self._logger.error(error.args)

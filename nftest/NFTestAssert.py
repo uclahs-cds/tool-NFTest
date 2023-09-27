@@ -19,27 +19,29 @@ class NFTestAssert():
         """ Constructor """
         self._env = NFTestENV()
         self._logger = getLogger('NFTest')
-        self.actual = actual
-        self.expect = expect
+        self.actual = Path(actual)
+        self.expect = Path(expect)
         self.method = method
         self.script = script
 
         self.startup_time = datetime.datetime.now(tz=datetime.timezone.utc)
 
-    def assert_expected(self):
-        """ Assert the results match with the expected values. """
-        if not Path(self.actual).exists():
+    def assert_exists(self) -> None:
+        "Assert that the expected and actual files exist."
+        if not self.actual.exists():
             self._logger.error('Actual file not found: %s', self.actual)
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.actual)
 
-        if not Path(self.expect).exists():
+        if not self.expect.exists():
             self._logger.error('Expect file not found: %s', self.expect)
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.expect)
 
+    def assert_updated(self) -> None:
+        "Assert that the actual file was updated during this test run."
         file_mod_time = datetime.datetime.fromtimestamp(
-            Path(self.actual).stat().st_mtime,
+            self.actual.stat().st_mtime,
             tz=datetime.timezone.utc
         )
 
@@ -48,6 +50,8 @@ class NFTestAssert():
         assert file_mod_time > self.startup_time, \
             f"{str(self.actual)} was not modified by this pipeline"
 
+    def assert_expected(self) -> None:
+        "Assert the results match with the expected values."
         assert_method = self.get_assert_method()
         try:
             assert assert_method(self.actual, self.expect)
