@@ -14,6 +14,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Add DEBUG lines about specific asserts
 - Assert that actual files are modified by pipelines
 
+### Fixed
+- Tests after real-time logging
+
 ---
 
 ## [1.0.0-rc.3] - 2023-05-25
