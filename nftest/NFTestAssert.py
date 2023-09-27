@@ -41,8 +41,8 @@ class NFTestAssert():
         file_mod_time = datetime.datetime.fromtimestamp(
             Path(self.actual).stat().st_mtime,
             tz=datetime.timezone.utc
-
         )
+
         self._logger.debug("Test creation time: %s", self.startup_time)
         self._logger.debug("Actual mod time:    %s", file_mod_time)
         assert file_mod_time > self.startup_time, \
