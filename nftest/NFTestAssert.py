@@ -13,10 +13,6 @@ from nftest.common import calculate_checksum
 from nftest.NFTestENV import NFTestENV
 
 
-class NotUpdatedError(Exception):
-    "Indicate that a file was not updated during a pipeline run."
-
-
 class NFTestAssert():
     """ Defines how nextflow test results are asserted. """
     def __init__(self, actual:str, expect:str, method:str='md5', script:str=None):
@@ -49,10 +45,8 @@ class NFTestAssert():
         )
         self._logger.debug("Test creation time: %s", self.startup_time)
         self._logger.debug("Actual mod time:    %s", file_mod_time)
-        if file_mod_time <= self.startup_time:
-            raise NotUpdatedError(
-                f"{str(self.actual)} was not modified by this pipeline"
-            )
+        assert file_mod_time > self.startup_time, \
+            f"{str(self.actual)} was not modified by this pipeline"
 
         assert_method = self.get_assert_method()
         try:
