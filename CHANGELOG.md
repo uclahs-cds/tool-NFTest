@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Wrap all NextFlow output with real-time line-by-line log statements
 - Wrap custom comparison to log through NFTest logger
 - Add DEBUG lines about specific asserts
+- Assert that actual files are modified by pipelines
+
 ### Fixed
 - Tests after real-time logging
 

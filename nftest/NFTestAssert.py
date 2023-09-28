@@ -1,12 +1,14 @@
 """ NF Test assert """
+import datetime
 import errno
-import selectors
 import os
-from pathlib import Path
+import selectors
 import subprocess as sp
+from pathlib import Path
 from subprocess import PIPE
 from typing import Callable
 from logging import getLogger, DEBUG, ERROR
+
 from nftest.common import calculate_checksum
 from nftest.NFTestENV import NFTestENV
 
@@ -17,23 +19,39 @@ class NFTestAssert():
         """ Constructor """
         self._env = NFTestENV()
         self._logger = getLogger('NFTest')
-        self.actual = actual
-        self.expect = expect
+        self.actual = Path(actual)
+        self.expect = Path(expect)
         self.method = method
         self.script = script
 
-    def assert_expected(self):
-        """ Assert the results match with the expected values. """
-        if not Path(self.actual).exists():
+        self.startup_time = datetime.datetime.now(tz=datetime.timezone.utc)
+
+    def assert_exists(self) -> None:
+        "Assert that the expected and actual files exist."
+        if not self.actual.exists():
             self._logger.error('Actual file not found: %s', self.actual)
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.actual)
 
-        if not Path(self.expect).exists():
+        if not self.expect.exists():
             self._logger.error('Expect file not found: %s', self.expect)
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),
                 self.expect)
 
+    def assert_updated(self) -> None:
+        "Assert that the actual file was updated during this test run."
+        file_mod_time = datetime.datetime.fromtimestamp(
+            self.actual.stat().st_mtime,
+            tz=datetime.timezone.utc
+        )
+
+        self._logger.debug("Test creation time: %s", self.startup_time)
+        self._logger.debug("Actual mod time:    %s", file_mod_time)
+        assert file_mod_time > self.startup_time, \
+            f"{str(self.actual)} was not modified by this pipeline"
+
+    def assert_expected(self) -> None:
+        "Assert the results match with the expected values."
         assert_method = self.get_assert_method()
         try:
             assert assert_method(self.actual, self.expect)
