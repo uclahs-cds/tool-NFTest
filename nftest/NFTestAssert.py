@@ -4,7 +4,6 @@ import errno
 import os
 import selectors
 import subprocess as sp
-from pathlib import Path
 from subprocess import PIPE
 from typing import Callable
 from logging import getLogger, DEBUG, ERROR
