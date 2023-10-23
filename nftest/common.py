@@ -27,6 +27,14 @@ def remove_nextflow_logs() -> None:
         else:
             os.remove(file)
 
+def resolve_single_path(path:str) -> Path:
+    """ Resolve wildcards in path and ensure only a single path is identified """
+    expanded_paths = glob.glob(path)
+    assert len(expanded_paths) == 1, \
+        f"{path} resolved to 0 or more than 1 files. Assertion failed."
+
+    return Path(expanded_paths[0])
+
 def calculate_checksum(path:Path) -> str:
     """ Calculate checksum recursively.
     Args:
