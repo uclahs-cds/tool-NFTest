@@ -122,5 +122,5 @@ def test_identify_assertions_files(mock_assert, mock_glob, glob_return_value, ca
     if case_pass:
         NFTestAssert.identify_assertion_files(mock_assert())
     else:
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             NFTestAssert.identify_assertion_files(mock_assert())
