@@ -30,7 +30,7 @@ def remove_nextflow_logs() -> None:
 def resolve_single_path(path:str) -> Path:
     """ Resolve wildcards in path and ensure only a single path is identified """
     expanded_paths = glob.glob(path)
-    if (1 != len(expanded_paths)):
+    if 1 != len(expanded_paths):
         raise ValueError(f"Path `{path}` resolved to 0 or more than 1 file: {expanded_paths}." \
         " Assertion failed.")
 
