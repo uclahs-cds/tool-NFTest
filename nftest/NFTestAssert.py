@@ -27,8 +27,8 @@ class NFTestAssert():
 
     def identify_assertion_files(self) -> None:
         """ Resolve actual and expected paths """
-        self.actual = resolve_single_path(str(self.actual))
-        self.expect = resolve_single_path(str(self.expect))
+        self.actual = resolve_single_path(self.actual)
+        self.expect = resolve_single_path(self.expect)
 
     def assert_exists(self) -> None:
         "Assert that the expected and actual files exist."
