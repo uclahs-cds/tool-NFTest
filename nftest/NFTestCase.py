@@ -73,15 +73,15 @@ class NFTestCase():
         return wrapper
 
     @test_wrapper
-    def test(self):
+    def test(self) -> bool:
         """ Run test cases. """
         if self.skip:
             self._logger.info(' [ skipped ]')
-            return
+            return True
         res = self.submit()
         if res.returncode != 0:
             self._logger.error(' [ failed ]')
-            return
+            return False
         for ass in self.asserts:
             try:
                 ass.assert_exists()
@@ -92,6 +92,7 @@ class NFTestCase():
                 self._logger.error(' [ failed ]')
                 raise error
         self._logger.info(' [ succeed ]')
+        return True
 
     def submit(self) -> sp.CompletedProcess:
         """ Submit a nextflow run """

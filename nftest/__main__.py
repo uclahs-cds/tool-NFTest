@@ -79,7 +79,7 @@ def run(args):
     setup_loggers()
     runner = NFTestRunner()
     runner.load_from_config(args.config_file, args.TEST_CASES)
-    runner.main()
+    sys.exit(runner.main())
 
 def init(_):
     """ Set up nftest """
