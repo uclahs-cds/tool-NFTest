@@ -1,6 +1,7 @@
 """ Test NF-pipelines """
 from __future__ import annotations
 import argparse
+import sys
 from logging import getLogger
 from pathlib import Path
 import shutil
@@ -25,7 +26,17 @@ def parse_args() -> argparse.Namespace:
     subparsers = parser.add_subparsers(dest='command')
     add_subparser_init(subparsers)
     add_subparser_run(subparsers)
-    return parser.parse_args()
+
+    args = parser.parse_args()
+
+    if args.version:
+        print_version_and_exist()
+
+    if not hasattr(args, "func"):
+        parser.print_usage()
+        sys.exit(1)
+
+    return args
 
 # pylint: disable=W0212
 def add_subparser_init(subparsers:argparse._SubParsersAction):
@@ -112,9 +123,6 @@ def init(_):
 def main():
     """ main entrance """
     args = parse_args()
-
-    if args.version:
-        print_version_and_exist()
 
     args.func(args)
 
