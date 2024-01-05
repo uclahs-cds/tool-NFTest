@@ -4,12 +4,11 @@ import errno
 import os
 import selectors
 import subprocess as sp
-from pathlib import Path
 from subprocess import PIPE
 from typing import Callable
 from logging import getLogger, DEBUG, ERROR
 
-from nftest.common import calculate_checksum
+from nftest.common import calculate_checksum, resolve_single_path
 from nftest.NFTestENV import NFTestENV
 
 
@@ -19,12 +18,17 @@ class NFTestAssert():
         """ Constructor """
         self._env = NFTestENV()
         self._logger = getLogger('NFTest')
-        self.actual = Path(actual)
-        self.expect = Path(expect)
+        self.actual = actual
+        self.expect = expect
         self.method = method
         self.script = script
 
         self.startup_time = datetime.datetime.now(tz=datetime.timezone.utc)
+
+    def identify_assertion_files(self) -> None:
+        """ Resolve actual and expected paths """
+        self.actual = resolve_single_path(self.actual)
+        self.expect = resolve_single_path(self.expect)
 
     def assert_exists(self) -> None:
         "Assert that the expected and actual files exist."

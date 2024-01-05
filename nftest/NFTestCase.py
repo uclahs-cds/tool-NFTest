@@ -84,6 +84,7 @@ class NFTestCase():
             return
         for ass in self.asserts:
             try:
+                ass.identify_assertion_files()
                 ass.assert_exists()
                 ass.assert_updated()
                 ass.assert_expected()

@@ -101,3 +101,34 @@ def test_assert_expected(mock_assert):
     mock_assert.return_value.get_assert_method = lambda: lambda x, y: False
     with pytest.raises(AssertionError):
         NFTestAssert.assert_expected(mock_assert())
+
+@pytest.mark.parametrize(
+    'glob_return_value,case_pass',
+    [
+        ([], False),
+        (['a', 'b'], False),
+        (['a'], True)
+    ]
+)
+@mock.patch('glob.glob')
+@mock.patch('nftest.NFTestAssert.NFTestENV')
+@mock.patch('logging.getLogger')
+def test_identify_assertions_files(
+    mock_getlogger,
+    mock_env,
+    mock_glob,
+    glob_return_value,
+    case_pass):
+    ''' Tests for proper file identification '''
+
+    mock_glob.return_value = glob_return_value
+    mock_env.return_value = None
+    mock_getlogger.return_value = lambda x: None
+
+    test_assert = NFTestAssert('', '')
+
+    if case_pass:
+        test_assert.identify_assertion_files()
+    else:
+        with pytest.raises(ValueError):
+            test_assert.identify_assertion_files()
