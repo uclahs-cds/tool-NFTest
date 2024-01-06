@@ -55,7 +55,8 @@ class NFTestCase():
             return []
 
         for assertion in asserts:
-            assertion.actual = Path(self._env.NFT_OUTPUT)/self.name_for_output/assertion.actual
+            assertion.actual = str(
+                Path(self._env.NFT_OUTPUT)/self.name_for_output/assertion.actual)
 
         return asserts
 
