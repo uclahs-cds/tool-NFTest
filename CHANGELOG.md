@@ -11,6 +11,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [1.0.1] - 2024-01-05
+### Fixed
+- Path type passed to glob to identify files
+
+---
+
 ## [1.0.0] - 2023-10-23
 ### Added
 - Support for patterns in expected and actual file paths
