@@ -61,28 +61,31 @@ class NFTestCase():
         return asserts
 
     # pylint: disable=E0213
-    def test_wrapper(func:Callable):
+    def test_wrapper(func: Callable):
         """ Wrap tests with additional logging and cleaning. """
         def wrapper(self):
             # pylint: disable=E1102
             self.print_prolog()
-            func(self)
+            result = func(self)
             if self.remove_temp:
                 shutil.rmtree(self.temp_dir, ignore_errors=True)
             if self.clean_logs:
                 remove_nextflow_logs()
+
+            return result
+
         return wrapper
 
     @test_wrapper
-    def test(self):
+    def test(self) -> bool:
         """ Run test cases. """
         if self.skip:
             self._logger.info(' [ skipped ]')
-            return
+            return True
         res = self.submit()
         if res.returncode != 0:
             self._logger.error(' [ failed ]')
-            return
+            return False
         for ass in self.asserts:
             try:
                 ass.identify_assertion_files()
@@ -94,6 +97,7 @@ class NFTestCase():
                 self._logger.error(' [ failed ]')
                 raise error
         self._logger.info(' [ succeed ]')
+        return True
 
     def submit(self) -> sp.CompletedProcess:
         """ Submit a nextflow run """

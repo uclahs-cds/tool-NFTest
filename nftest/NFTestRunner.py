@@ -45,12 +45,18 @@ class NFTestRunner():
     def main(self):
         """ Main entrance """
         self.print_prolog()
+
+        failure_count = 0
+
         for case in self.cases:
             try:
-                case.test()
+                if not case.test():
+                    failure_count += 1
             except AssertionError:
                 # In case of failed test case, continue with other cases
-                continue
+                failure_count += 1
+
+        return failure_count
 
     def print_prolog(self):
         """ Print prolog """
