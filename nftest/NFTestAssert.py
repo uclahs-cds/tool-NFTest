@@ -71,10 +71,9 @@ class NFTestAssert():
         # pylint: disable=E0102
         if self.script is not None:
             def func(actual, expect):
-                cmd = f"{self.script} {actual} {expect}"
-                self._logger.debug(cmd)
+                cmd = [self.script, actual, expect]
+                self._logger.debug(sp.list2cmdline(cmd))
                 with sp.Popen(cmd,
-                              shell=True,
                               stdout=PIPE,
                               stderr=PIPE,
                               universal_newlines=True) as process:
@@ -96,8 +95,8 @@ class NFTestAssert():
                             for key, _ in events:
                                 line = key.fileobj.readline()
                                 if line:
-                                    # The only case in which this won't be true is when
-                                    # the pipe is closed
+                                    # The only case in which this won't be true
+                                    # is when the pipe is closed
                                     self._logger.log(
                                         level=key.data,
                                         msg=line.rstrip()

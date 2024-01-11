@@ -1,6 +1,7 @@
 """ NF Test case """
 from __future__ import annotations
 
+import os
 import re
 import selectors
 import shutil
@@ -101,27 +102,35 @@ class NFTestCase():
 
     def submit(self) -> sp.CompletedProcess:
         """ Submit a nextflow run """
-        config_arg = ''
-        if self.nf_configs:
-            config_arg = '-c ' + ' -c '.join(self.nf_configs)
-        params_file_arg = f"-params-file {self.params_file}" if self.params_file else ""
-        profiles_arg = f"-profile {quote(','.join(self.profiles))}" if self.profiles else ""
-        output_directory_with_case = Path(self._env.NFT_OUTPUT)/self.name_for_output
-        output_directory_arg = f"--{self.output_directory_param_name} " \
-            f"{output_directory_with_case}"
-        cmd = f"""
-        NXF_WORK={self.temp_dir} \
-        nextflow run \
-            {self.nf_script} \
-            {profiles_arg} \
-            {config_arg} \
-            {params_file_arg} \
-            {output_directory_arg}
-        """
-        self._logger.info(' '.join(cmd.split()))
+        nextflow_command = ["nextflow", "run", self.nf_script]
 
-        with sp.Popen(cmd,
-                      shell=True,
+        if self.profiles:
+            nextflow_command.extend(["-profile", ",".join(self.profiles)])
+
+        for config in self.nf_configs:
+            nextflow_command.extend(["-c", config])
+
+        if self.params_file:
+            nextflow_command.extend(["-params-file", self.params_file])
+
+        nextflow_command.extend([
+            f"--{self.output_directory_param_name}",
+            Path(self._env.NFT_OUTPUT, self.name_for_output)
+        ])
+
+        envmod = {
+            "NXF_WORK": self.temp_dir
+        }
+
+        # Log the shell equivalent of this command
+        self._logger.info(
+            " ".join([f"{k}={quote(v)}" for k, v in envmod.items()]) +
+            " " +
+            sp.list2cmdline(nextflow_command)
+        )
+
+        with sp.Popen(nextflow_command,
+                      env={**os.environ, **envmod},
                       stdout=PIPE,
                       stderr=PIPE,
                       universal_newlines=True) as process:
