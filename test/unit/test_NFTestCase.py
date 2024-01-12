@@ -24,8 +24,8 @@ def test_combine_global(mock_case):
     assert case.temp_dir == test_temp_directory
     assert case.clean_logs == test_clean_logs
 
-@mock.patch('nftest.NFTestCase.selectors')
-@mock.patch('nftest.NFTestCase.sp.Popen')
+@mock.patch('nftest.common.selectors')
+@mock.patch('nftest.common.subprocess.Popen')
 @mock.patch('nftest.NFTestCase.NFTestCase', wraps=NFTestCase)
 def test_submit(mock_case, mock_sp, mock_selectors):
     ''' Tests for submission step '''
