@@ -13,7 +13,7 @@ from shlex import quote
 from subprocess import PIPE
 from typing import Callable, List, TYPE_CHECKING
 
-from nftest.common import remove_nextflow_logs
+from nftest.common import remove_nextflow_logs, popen_with_logger
 from nftest.NFTestENV import NFTestENV
 
 
@@ -124,41 +124,16 @@ class NFTestCase():
 
         # Log the shell equivalent of this command
         self._logger.info(
-            " ".join([f"{k}={quote(v)}" for k, v in envmod.items()]) +
-            " " +
+            "%s %s",
+            " ".join([f"{k}={quote(v)}" for k, v in envmod.items()]),
             sp.list2cmdline(nextflow_command)
         )
 
-        with sp.Popen(nextflow_command,
-                      env={**os.environ, **envmod},
-                      stdout=PIPE,
-                      stderr=PIPE,
-                      universal_newlines=True) as process:
-
-            # Route stdout to INFO and stderr to ERROR in real-time
-            with selectors.DefaultSelector() as selector:
-                selector.register(
-                    fileobj=process.stdout,
-                    events=selectors.EVENT_READ,
-                    data=INFO
-                )
-                selector.register(
-                    fileobj=process.stderr,
-                    events=selectors.EVENT_READ,
-                    data=ERROR
-                )
-
-                while process.poll() is None:
-                    events = selector.select()
-                    for key, _ in events:
-                        line = key.fileobj.readline()
-                        if line:
-                            # The only case in which this won't be true is when
-                            # the pipe is closed
-                            self._nflogger.log(
-                                level=key.data,
-                                msg=line.rstrip()
-                            )
+        process = popen_with_logger(
+            nextflow_command,
+            env={**os.environ, **envmod},
+            logger=self._logger
+        )
 
         return process
 
