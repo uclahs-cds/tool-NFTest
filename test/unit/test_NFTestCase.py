@@ -32,7 +32,7 @@ def test_submit(mock_case, mock_sp, mock_selectors):
     test_stdout = 'hello world'
 
     mock_sp.return_value.__enter__ = lambda x: SimpleNamespace(
-        **{'stdout': test_stdout + "extra", 'stderr': '', 'poll': lambda: True}
+        **{'stdout': test_stdout, 'stderr': '', 'poll': lambda: True}
     )
     mock_selectors.DefaultSelector.register.return_value = lambda x, y, z: None
 
