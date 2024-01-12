@@ -2,10 +2,9 @@
 import datetime
 import errno
 import os
-import selectors
 import subprocess
 from typing import Callable
-from logging import getLogger, DEBUG, ERROR
+from logging import getLogger, DEBUG
 
 from nftest.common import calculate_checksum, resolve_single_path, \
     popen_with_logger
@@ -74,7 +73,11 @@ class NFTestAssert():
                 cmd = [self.script, actual, expect]
                 self._logger.debug(subprocess.list2cmdline(cmd))
 
-                process = popen_with_logger(cmd, logger=self._logger)
+                process = popen_with_logger(
+                    cmd,
+                    logger=self._logger,
+                    stdout_level=DEBUG
+                )
                 return process.returncode == 0
 
             return func

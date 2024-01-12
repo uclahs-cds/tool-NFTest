@@ -95,7 +95,11 @@ def setup_loggers():
     )
 
 
-def popen_with_logger(*args, logger=None, **kwargs) -> subprocess.CompletedProcess:
+def popen_with_logger(*args,
+                      logger=None,
+                      stdout_level=logging.INFO,
+                      stderr_level=logging.ERROR,
+                      **kwargs) -> subprocess.CompletedProcess:
     """
     Run a subprocess and stream the console outputs to a logger.
     """
@@ -118,12 +122,12 @@ def popen_with_logger(*args, logger=None, **kwargs) -> subprocess.CompletedProce
             selector.register(
                 fileobj=process.stdout,
                 events=selectors.EVENT_READ,
-                data=logging.INFO
+                data=stdout_level
             )
             selector.register(
                 fileobj=process.stderr,
                 events=selectors.EVENT_READ,
-                data=logging.ERROR
+                data=stderr_level
             )
 
             while process.poll() is None:

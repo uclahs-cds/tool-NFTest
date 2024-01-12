@@ -7,10 +7,9 @@ import selectors
 import shutil
 import subprocess as sp
 
-from logging import getLogger, INFO, ERROR
+from logging import getLogger
 from pathlib import Path
 from shlex import quote
-from subprocess import PIPE
 from typing import Callable, List, TYPE_CHECKING
 
 from nftest.common import remove_nextflow_logs, popen_with_logger
