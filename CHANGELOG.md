@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 ### Changed
 - Make `nftest run` exit with the number of failed tests
+- Use `shell=False` for subprocess
 
 ### Fixed
 - Make `nftest` with no arguments print usage and exit

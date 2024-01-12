@@ -1,18 +1,17 @@
 """ NF Test case """
 from __future__ import annotations
 
+import os
 import re
-import selectors
 import shutil
 import subprocess as sp
 
-from logging import getLogger, INFO, ERROR
+from logging import getLogger
 from pathlib import Path
 from shlex import quote
-from subprocess import PIPE
 from typing import Callable, List, TYPE_CHECKING
 
-from nftest.common import remove_nextflow_logs
+from nftest.common import remove_nextflow_logs, popen_with_logger
 from nftest.NFTestENV import NFTestENV
 
 
@@ -101,55 +100,38 @@ class NFTestCase():
 
     def submit(self) -> sp.CompletedProcess:
         """ Submit a nextflow run """
-        config_arg = ''
-        if self.nf_configs:
-            config_arg = '-c ' + ' -c '.join(self.nf_configs)
-        params_file_arg = f"-params-file {self.params_file}" if self.params_file else ""
-        profiles_arg = f"-profile {quote(','.join(self.profiles))}" if self.profiles else ""
-        output_directory_with_case = Path(self._env.NFT_OUTPUT)/self.name_for_output
-        output_directory_arg = f"--{self.output_directory_param_name} " \
-            f"{output_directory_with_case}"
-        cmd = f"""
-        NXF_WORK={self.temp_dir} \
-        nextflow run \
-            {self.nf_script} \
-            {profiles_arg} \
-            {config_arg} \
-            {params_file_arg} \
-            {output_directory_arg}
-        """
-        self._logger.info(' '.join(cmd.split()))
+        nextflow_command = ["nextflow", "run", self.nf_script]
 
-        with sp.Popen(cmd,
-                      shell=True,
-                      stdout=PIPE,
-                      stderr=PIPE,
-                      universal_newlines=True) as process:
+        if self.profiles:
+            nextflow_command.extend(["-profile", ",".join(self.profiles)])
 
-            # Route stdout to INFO and stderr to ERROR in real-time
-            with selectors.DefaultSelector() as selector:
-                selector.register(
-                    fileobj=process.stdout,
-                    events=selectors.EVENT_READ,
-                    data=INFO
-                )
-                selector.register(
-                    fileobj=process.stderr,
-                    events=selectors.EVENT_READ,
-                    data=ERROR
-                )
+        for config in self.nf_configs:
+            nextflow_command.extend(["-c", config])
 
-                while process.poll() is None:
-                    events = selector.select()
-                    for key, _ in events:
-                        line = key.fileobj.readline()
-                        if line:
-                            # The only case in which this won't be true is when
-                            # the pipe is closed
-                            self._nflogger.log(
-                                level=key.data,
-                                msg=line.rstrip()
-                            )
+        if self.params_file:
+            nextflow_command.extend(["-params-file", self.params_file])
+
+        nextflow_command.extend([
+            f"--{self.output_directory_param_name}",
+            Path(self._env.NFT_OUTPUT, self.name_for_output)
+        ])
+
+        envmod = {
+            "NXF_WORK": self.temp_dir
+        }
+
+        # Log the shell equivalent of this command
+        self._logger.info(
+            "%s %s",
+            " ".join([f"{k}={quote(v)}" for k, v in envmod.items()]),
+            sp.list2cmdline(nextflow_command)
+        )
+
+        process = popen_with_logger(
+            nextflow_command,
+            env={**os.environ, **envmod},
+            logger=self._logger
+        )
 
         return process
 

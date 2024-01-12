@@ -1,13 +1,17 @@
 """ Common functions """
 import argparse
-import hashlib
 import glob
-import os
+import hashlib
 import logging
-from pathlib import Path
+import os
+import selectors
 import shutil
+import subprocess
 import sys
 import time
+
+from pathlib import Path
+
 from nftest import __version__
 from nftest.NFTestENV import NFTestENV
 
@@ -89,3 +93,53 @@ def setup_loggers():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=(file_handler, stream_handler)
     )
+
+
+def popen_with_logger(*args,
+                      logger=None,
+                      stdout_level=logging.INFO,
+                      stderr_level=logging.ERROR,
+                      **kwargs) -> subprocess.CompletedProcess:
+    """
+    Run a subprocess and stream the console outputs to a logger.
+    """
+    for badarg in ("stdout", "stderr", "universal_newlines"):
+        if badarg in kwargs:
+            raise ValueError(f"Argument {badarg} is not allowed")
+
+    if logger is None:
+        raise ValueError("A logger must be supplied!")
+
+    kwargs.update({
+        "stdout": subprocess.PIPE,
+        "stderr": subprocess.PIPE,
+        "universal_newlines": True
+    })
+
+    with subprocess.Popen(*args, **kwargs) as process:
+        # Route stdout to INFO and stderr to ERROR in real-time
+        with selectors.DefaultSelector() as selector:
+            selector.register(
+                fileobj=process.stdout,
+                events=selectors.EVENT_READ,
+                data=stdout_level
+            )
+            selector.register(
+                fileobj=process.stderr,
+                events=selectors.EVENT_READ,
+                data=stderr_level
+            )
+
+            while process.poll() is None:
+                events = selector.select()
+                for key, _ in events:
+                    line = key.fileobj.readline()
+                    if line:
+                        # The only case in which this won't be true is when
+                        # the pipe is closed
+                        logger.log(
+                            level=key.data,
+                            msg=line.rstrip()
+                        )
+
+    return process

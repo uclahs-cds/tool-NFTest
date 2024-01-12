@@ -2,13 +2,12 @@
 import datetime
 import errno
 import os
-import selectors
-import subprocess as sp
-from subprocess import PIPE
+import subprocess
 from typing import Callable
-from logging import getLogger, DEBUG, ERROR
+from logging import getLogger, DEBUG
 
-from nftest.common import calculate_checksum, resolve_single_path
+from nftest.common import calculate_checksum, resolve_single_path, \
+    popen_with_logger
 from nftest.NFTestENV import NFTestENV
 
 
@@ -71,38 +70,16 @@ class NFTestAssert():
         # pylint: disable=E0102
         if self.script is not None:
             def func(actual, expect):
-                cmd = f"{self.script} {actual} {expect}"
-                self._logger.debug(cmd)
-                with sp.Popen(cmd,
-                              shell=True,
-                              stdout=PIPE,
-                              stderr=PIPE,
-                              universal_newlines=True) as process:
-                    # Route stdout to INFO and stderr to ERROR in real-time
-                    with selectors.DefaultSelector() as selector:
-                        selector.register(
-                            fileobj=process.stdout,
-                            events=selectors.EVENT_READ,
-                            data=DEBUG
-                        )
-                        selector.register(
-                            fileobj=process.stderr,
-                            events=selectors.EVENT_READ,
-                            data=ERROR
-                        )
+                cmd = [self.script, actual, expect]
+                self._logger.debug(subprocess.list2cmdline(cmd))
 
-                        while process.poll() is None:
-                            events = selector.select()
-                            for key, _ in events:
-                                line = key.fileobj.readline()
-                                if line:
-                                    # The only case in which this won't be true is when
-                                    # the pipe is closed
-                                    self._logger.log(
-                                        level=key.data,
-                                        msg=line.rstrip()
-                                    )
+                process = popen_with_logger(
+                    cmd,
+                    logger=self._logger,
+                    stdout_level=DEBUG
+                )
                 return process.returncode == 0
+
             return func
         if self.method == 'md5':
             def func(actual, expect):
