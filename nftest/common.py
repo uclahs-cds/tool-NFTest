@@ -1,6 +1,7 @@
 """ Common functions """
 import argparse
 import re
+from typing import Tuple
 import glob
 import hashlib
 import logging
@@ -58,7 +59,7 @@ def validate_reference(
     reference_parameter_name:str,
     reference_parameter_path:str,
     reference_checksum:str,
-    reference_checksum_type:str) -> tuple[str, str]:
+    reference_checksum_type:str) -> Tuple[str, str]:
     """ Validate reference file and checksum """
     if not re.match(r'[a-zA-Z0-9_\-.]+$', reference_parameter_name):
         raise ValueError(f'Reference parameter name: `{reference_parameter_name}` is invalid. '
