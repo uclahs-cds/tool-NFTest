@@ -1,5 +1,6 @@
 """ Common functions """
 import argparse
+import re
 import glob
 import hashlib
 import logging
@@ -52,6 +53,27 @@ def calculate_checksum(path:Path) -> str:
             sum_val.update(byte_block)
     sum_val = sum_val.hexdigest()
     return sum_val
+
+def validate_reference(
+    reference_parameter_name:str,
+    reference_parameter_path:str,
+    reference_checksum:str,
+    reference_checksum_type:str) -> tuple[str, str]:
+    """ Validate reference file and checksum """
+    if not re.match(r'[a-zA-Z0-9_\-.]+$', reference_parameter_name):
+        raise ValueError(f'Reference parameter name: `{reference_parameter_name}` is invalid. '
+            f'Please use only alphanumeric, _, -, and . characters in parameter names.')
+
+    _logger = logging.getLogger("NFTest")
+
+    actual_checksum = calculate_checksum(Path(reference_parameter_path))
+
+    if actual_checksum != reference_checksum:
+        _logger.warning(f'Checksum for reference file: {reference_parameter_name}'
+            f'={reference_parameter_path} - `{actual_checksum}` '
+            f'does not match expected checksum of `{reference_checksum}`')
+
+    return (reference_parameter_name, reference_parameter_path)
 
 def find_config_yaml(args:argparse.Namespace):
     """ Find the test config yaml """
