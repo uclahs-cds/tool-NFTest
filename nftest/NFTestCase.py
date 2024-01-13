@@ -9,7 +9,7 @@ import subprocess as sp
 from logging import getLogger
 from pathlib import Path
 from shlex import quote
-from typing import Callable, List, TYPE_CHECKING
+from typing import Callable, List, TYPE_CHECKING, Tuple
 
 from nftest.common import remove_nextflow_logs, popen_with_logger
 from nftest.NFTestENV import NFTestENV
@@ -25,6 +25,7 @@ class NFTestCase():
     # pylint: disable=R0913
     def __init__(self, name:str=None, message:str=None, nf_script:str=None,
             nf_configs:List[str]=None, profiles:List[str]=None, params_file:str=None,
+            reference_params:List[Tuple[str,str]]=None,
             output_directory_param_name:str='output_dir',
             asserts:List[NFTestAssert]=None, temp_dir:str=None,
             remove_temp:bool=None, clean_logs:bool=None,
@@ -38,6 +39,7 @@ class NFTestCase():
         self.message = message
         self.nf_script = nf_script
         self.nf_configs = nf_configs or []
+        self.reference_params = reference_params or []
         self.profiles = profiles or []
         self.params_file = params_file
         self.output_directory_param_name = output_directory_param_name
@@ -110,6 +112,9 @@ class NFTestCase():
 
         if self.params_file:
             nextflow_command.extend(["-params-file", self.params_file])
+
+        for param_name, path in self.reference_params:
+            nextflow_command.extend([f"--{param_name}", path])
 
         nextflow_command.extend([
             f"--{self.output_directory_param_name}",
