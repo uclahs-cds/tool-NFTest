@@ -70,9 +70,12 @@ def validate_reference(
     actual_checksum = calculate_checksum(Path(reference_parameter_path))
 
     if actual_checksum != reference_checksum:
-        _logger.warning(f'Checksum for reference file: {reference_parameter_name}'
-            f'={reference_parameter_path} - `{actual_checksum}` '
-            f'does not match expected checksum of `{reference_checksum}`')
+        _logger.warning('Checksum for reference file: %s'
+            '=%s - `%s` does not match expected checksum of `%s`',
+            reference_parameter_name,
+            reference_parameter_path,
+            actual_checksum,
+            reference_checksum)
 
     return (reference_parameter_name, reference_parameter_path)
 
