@@ -1,9 +1,9 @@
 # pylint: disable=W0212
 ''' Test module for common functions '''
 
+import logging
 import mock
 import pytest
-import logging
 
 from nftest.common import resolve_single_path, validate_reference
 
