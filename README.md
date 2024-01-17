@@ -4,6 +4,7 @@
 - [Installation](#installation)
     - [From GitHub](#install-directly-from-github)
     - [From local](#install-from-cloned-repository)
+- [Badge](#badge)
 - [Usage](#usage)
     - [Quickstart](#quickstart)
 - [Configuration](#configuration)
@@ -32,6 +33,18 @@ pip install git+ssh://git@github.com/uclahs-cds/tool-NFTest.git
 cd </path/to/cloned/repository>
 pip install .
 ```
+
+## Badge
+Add the NFTest badge to pipelines:
+
+
+[![NFTest](https://img.shields.io/badge/Tested%20using-NFTest-green.svg)](https://github.com/uclahs-cds/tool-NFTest)
+
+```
+[![NFTest](https://img.shields.io/badge/Tested%20using-NFTest-green.svg)](https://github.com/uclahs-cds/tool-NFTest)
+```
+
+
 
 ## Usage
 ### Quickstart
