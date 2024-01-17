@@ -31,7 +31,9 @@ def syslog_filter(record):
     # Format / example:
     # <PRI>Mmm dd hh:mm:ss HOSTNAME MESSAGE"
     # <134>Jan  3 12:00:25 ip-0A125232 nextflow: INFO  [main] more...
-    level_month, day, time, addr_message = \
+
+    # Ignore the embedded date for simplicity
+    level_month, _, _, addr_message = \
         record.msg.strip().decode("utf-8").split(maxsplit=3)
 
     # For errors, the message may begin with whitespace - make sure to only
@@ -68,21 +70,12 @@ class SyslogServer(socketserver.ThreadingUDPServer):
     @classmethod
     def make_server(cls):
         "Create a server with a random port to handle syslogs."
-        docker_gateway = subprocess.check_output([
-            "docker",
-            "network",
-            "inspect",
-            "bridge",
-            "--format",
-            "{{ (index .IPAM.Config 0).Gateway }}"
-        ]).decode("utf-8").strip()
-
         return cls(
-            server_address=(docker_gateway, 0),
+            server_address=("127.0.0.1", 0),
             RequestHandlerClass=SyslogHandler
         )
 
-    def serve_forever(self, poll_interval):
+    def serve_forever(self, poll_interval=0.5):
         logging.getLogger(__name__).debug(
             "Syslog server at %s:%d starting up",
             *self.server_address
