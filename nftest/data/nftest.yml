@@ -10,5 +10,10 @@ cases:
     message:
     nf_script:
     nf_config:
+    reference_files:
+      - reference_parameter_name:
+        reference_parameter_path:
+        reference_checksum:
+        reference_checksum_type: 'md5'
     skip: false
     verbose: true

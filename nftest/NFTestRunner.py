@@ -7,7 +7,7 @@ from nftest.NFTestGlobal import NFTestGlobal
 from nftest.NFTestAssert import NFTestAssert
 from nftest.NFTestCase import NFTestCase
 from nftest.NFTestENV import NFTestENV
-from nftest.common import validate_yaml
+from nftest.common import validate_yaml, validate_reference
 
 class NFTestRunner():
     """ This holds all test cases and global settings from a single yaml file.
@@ -33,6 +33,9 @@ class NFTestRunner():
                     asserts = []
                 case['asserts'] = asserts
                 case['nf_configs'] = [case.pop('nf_config')] if case.get('nf_config', None) else []
+                if 'reference_files' in case:
+                    case['reference_params'] = [validate_reference(**reference_file)
+                        for reference_file in case.pop('reference_files')]
                 test_case = NFTestCase(**case)
                 test_case.combine_global(self._global)
                 if target_cases:
