@@ -1,23 +1,27 @@
 """ NF Test case """
 from __future__ import annotations
 
+import logging
 import os
 import re
+import shlex
 import shutil
 import subprocess as sp
+import threading
 
-from logging import getLogger
+from contextlib import ExitStack
 from pathlib import Path
-from shlex import quote
 from typing import Callable, List, TYPE_CHECKING, Tuple
 
 from nftest.common import remove_nextflow_logs, popen_with_logger
 from nftest.NFTestENV import NFTestENV
+from nftest.syslog import SyslogServer
 
 
 if TYPE_CHECKING:
     from nftest.NFTestGlobal import NFTestGlobal
     from nftest.NFTestAssert import NFTestAssert
+
 
 class NFTestCase():
     """ Defines the NF test case """
@@ -32,8 +36,8 @@ class NFTestCase():
             skip:bool=False, verbose:bool=False):
         """ Constructor """
         self._env = NFTestENV()
-        self._logger = getLogger('NFTest')
-        self._nflogger = getLogger("NextFlow")
+        self._logger = logging.getLogger('NFTest')
+        self._nflogger = logging.getLogger("console")
         self.name = name
         self.name_for_output = re.sub(r'[^a-zA-Z0-9_\-.]', '', self.name.replace(' ', '-'))
         self.message = message
@@ -83,10 +87,12 @@ class NFTestCase():
         if self.skip:
             self._logger.info(' [ skipped ]')
             return True
-        res = self.submit()
-        if res.returncode != 0:
+
+        nextflow_succeeded = self.submit()
+        if not nextflow_succeeded:
             self._logger.error(' [ failed ]')
             return False
+
         for ass in self.asserts:
             try:
                 ass.identify_assertion_files()
@@ -102,41 +108,69 @@ class NFTestCase():
 
     def submit(self) -> sp.CompletedProcess:
         """ Submit a nextflow run """
-        nextflow_command = ["nextflow", "run", self.nf_script]
+        # Use ExitStack to handle the multiple nested context managers
+        with ExitStack() as stack:
+            # Create a server with a random port to accept syslogs from
+            # Nextflow
+            syslog_server = stack.enter_context(SyslogServer.make_server())
 
-        if self.profiles:
-            nextflow_command.extend(["-profile", ",".join(self.profiles)])
+            # Shut down the server when we exit this context manager
+            stack.callback(syslog_server.shutdown)
 
-        for config in self.nf_configs:
-            nextflow_command.extend(["-c", config])
+            # Run the server in a thread. This thread will die once
+            # serve_forever returns, which will happen after a call to
+            # syslog_server.shutdown()
+            threading.Thread(
+                name="SyslogThread",
+                target=syslog_server.serve_forever,
+                kwargs={"poll_interval": 1}
+            ).start()
 
-        if self.params_file:
-            nextflow_command.extend(["-params-file", self.params_file])
+            syslog_address = ":".join(
+                str(item) for item in syslog_server.server_address
+            )
 
-        for param_name, path in self.reference_params:
-            nextflow_command.extend([f"--{param_name}", path])
+            nextflow_command = [
+                "nextflow",
+                "-quiet",
+                "-syslog", syslog_address,
+                "run",
+                self.nf_script
+            ]
 
-        nextflow_command.extend([
-            f"--{self.output_directory_param_name}",
-            Path(self._env.NFT_OUTPUT, self.name_for_output)
-        ])
+            if self.profiles:
+                nextflow_command.extend(["-profile", ",".join(self.profiles)])
 
-        envmod = {
-            "NXF_WORK": self.temp_dir
-        }
+            for config in self.nf_configs:
+                nextflow_command.extend(["-c", config])
 
-        # Log the shell equivalent of this command
-        self._logger.info(
-            "%s %s",
-            " ".join([f"{k}={quote(v)}" for k, v in envmod.items()]),
-            sp.list2cmdline(nextflow_command)
-        )
+            if self.params_file:
+                nextflow_command.extend(["-params-file", self.params_file])
 
-        process = popen_with_logger(
-            nextflow_command,
-            env={**os.environ, **envmod},
-            logger=self._logger
-        )
+            for param_name, path in self.reference_params:
+                nextflow_command.extend([f"--{param_name}", path])
+
+            nextflow_command.extend([
+                f"--{self.output_directory_param_name}",
+                Path(self._env.NFT_OUTPUT, self.name_for_output)
+            ])
+
+            envmod = {
+                "NXF_WORK": self.temp_dir
+            }
+
+            # Log the shell equivalent of this command
+            self._logger.info(
+                "%s %s",
+                " ".join([f"{k}={shlex.quote(v)}" for k, v in envmod.items()]),
+                sp.list2cmdline(nextflow_command)
+            )
+
+            process = popen_with_logger(
+                nextflow_command,
+                env={**os.environ, **envmod},
+                logger=self._nflogger
+            )
 
         return process
 

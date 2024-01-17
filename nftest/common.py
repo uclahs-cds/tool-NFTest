@@ -16,6 +16,7 @@ from pathlib import Path
 
 from nftest import __version__
 from nftest.NFTestENV import NFTestENV
+from nftest.syslog import syslog_filter
 
 # pylint: disable=W0613
 def validate_yaml(path:Path):
@@ -114,9 +115,27 @@ def setup_loggers():
     except ValueError:
         stream_handler.setLevel(logging.INFO)
 
+    # Set up a special filter to decode the syslog messages from Nextflow
+    logging.getLogger("nextflow").addFilter(syslog_filter)
+
+    # This is a little sneaky: hide any tracebacks emitted via Nextflow's
+    # syslog handler from the console. They will still be recorded in the log
+    # file.
+    stream_handler.addFilter(
+        lambda record: record.threadName != "traceback"
+    )
+
+    # Set up different formats for the stream and file handlers
+    # The key difference is that the file handler will contain the thread name
+    stream_handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    ))
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(name)s - %(threadName)s - %(levelname)s - %(message)s',
+    ))
+
     logging.basicConfig(
         level=logging.DEBUG,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=(file_handler, stream_handler)
     )
 
