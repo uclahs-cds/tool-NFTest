@@ -4,7 +4,6 @@ Module for a system to capture Nextflow logs via syslog.
 import logging
 import re
 import socketserver
-import subprocess
 
 
 LEVELS = [
