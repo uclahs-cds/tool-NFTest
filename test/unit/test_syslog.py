@@ -41,6 +41,26 @@ def test_syslog_filter(caplog):
         ("nextflow", logging.CRITICAL, "Unable...")
 
 
+def test_syslog_filter_multline(caplog):
+    "Test that the syslog filter handles multiline messages."
+    caplog.set_level(logging.DEBUG)
+    logging.getLogger("nextflow").addFilter(syslog_filter)
+
+    # This is a well-formatted syslog message
+    logging.getLogger("nextflow").info(
+        b"<131>Jan  3 12:00:25 ip-0A125232 "
+        b"nextflow: ERROR [main] Launcher - Unable\nto\nact"
+    )
+
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+
+    assert record.levelno == logging.ERROR
+    assert record.msg == "Unable\nto\nact"
+    assert record.name == "nextflow"
+    assert record.threadName == "main"
+
+
 def test_syslog_filter_nonformatted(caplog):
     "Test that the syslog filter can handle poorly formatted messages."
     caplog.set_level(logging.DEBUG)

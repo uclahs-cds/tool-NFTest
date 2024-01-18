@@ -26,7 +26,7 @@ SYSLOG_RE = re.compile(r"""
     (?P<hostname>\S+)\s             # Hostname
     (?P<message>.*)                 # Message
     $                               # End of line
-    """, re.VERBOSE)
+    """, re.VERBOSE | re.DOTALL)
 MESSAGE_RE = re.compile(r"^nextflow:\s+\w+\s+\[(?P<thread>.+?)\] \S+ - ")
 
 
