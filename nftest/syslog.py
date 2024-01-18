@@ -17,7 +17,16 @@ LEVELS = [
     logging.DEBUG,      # 7 = Debug
 ]
 
-PRIORITY_RE = re.compile(r"^<(\d+)>")
+SYSLOG_RE = re.compile(r"""
+    ^                               # Start of line
+    <(?P<priority>\d+)>             # Priority
+    (?P<month>\w{3})\s              # Month
+    (?P<day>(?:\s|\d)\d)\s          # Day (with optional leading space)
+    (?P<time>\d{2}:\d{2}:\d{2})\s   # Time
+    (?P<hostname>\S+)\s             # Hostname
+    (?P<message>.*)                 # Message
+    $                               # End of line
+    """, re.VERBOSE)
 MESSAGE_RE = re.compile(r"^nextflow:\s+\w+\s+\[(?P<thread>.+?)\] \S+ - ")
 
 
@@ -25,24 +34,27 @@ def syslog_filter(record):
     """
     Logging filter to update syslogs from Nextflow with embedded information.
     """
+    if not isinstance(record.msg, bytes):
+        # This isn't a well-formatted syslog message - don't modify it
+        return record
+
     # Nextflow uses BSD-style syslog messages
     # https://datatracker.ietf.org/doc/html/rfc3164
     # Format / example:
     # <PRI>Mmm dd hh:mm:ss HOSTNAME MESSAGE"
     # <134>Jan  3 12:00:25 ip-0A125232 nextflow: INFO  [main] more...
-
     # Ignore the embedded date for simplicity
-    level_month, _, _, addr_message = \
-        record.msg.strip().decode("utf-8").split(maxsplit=3)
 
-    # For errors, the message may begin with whitespace - make sure to only
-    # strip off syslog's required space
-    _, message = addr_message.split(" ", maxsplit=1)
+    syslog_match = SYSLOG_RE.match(record.msg.strip().decode("utf-8"))
+
+    if not syslog_match:
+        # This isn't a well-formatted syslog message - don't modify it
+        return record
+
+    syslog_priority = int(syslog_match.group("priority")) % 8
 
     # The priority is 8 * facility + level - we only care about the level
-    record.levelno = LEVELS[
-        int(PRIORITY_RE.match(level_month).group(1)) % 8
-    ]
+    record.levelno = LEVELS[syslog_priority]
     record.levelname = logging.getLevelName(record.levelno)
 
     # For most messages, nextflow seems to have a format of:
@@ -53,6 +65,8 @@ def syslog_filter(record):
     # nextflow: ERROR [main] Launcher - Unable...
 
     # Strip off everything before the module if possible
+    message = syslog_match.group("message")
+
     thread_match = MESSAGE_RE.match(message)
     if thread_match:
         record.msg = MESSAGE_RE.sub("", message)
