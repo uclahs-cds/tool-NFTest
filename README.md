@@ -89,6 +89,8 @@ optional arguments:
   -h, --help  show this help message and exit
 ```
 
+Initialization will result in automated creation of a directory for holding test files along with an initial copy of the global configuration file and the test case YAML. These files can subsequently be populated and expanded to define the test cases.
+
 ### Run
 
 ```
