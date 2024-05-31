@@ -6,6 +6,7 @@ import re
 import socketserver
 
 
+# fmt: off
 LEVELS = [
     logging.CRITICAL,   # 0 = Emergency
     logging.CRITICAL,   # 1 = Alert
@@ -16,6 +17,7 @@ LEVELS = [
     logging.INFO,       # 6 = Info
     logging.DEBUG,      # 7 = Debug
 ]
+# fmt: on
 
 SYSLOG_RE = re.compile(r"""
     ^                               # Start of line
