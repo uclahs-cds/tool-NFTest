@@ -1,21 +1,21 @@
-'''Test module for NFTestENV'''
+"""Test module for NFTestENV"""
 
 from nftest.NFTestENV import NFTestENV
 
 
 def test_nftest_env_load(monkeypatch):
-    '''Tests loading of values from environment'''
-    test_out_directory = 'random/directory_output'
-    test_temp_directory = 'random/directory_temp'
-    test_init_directory = 'random/directory_init'
-    test_log_level = 'random_log_level'
-    test_log_file = 'random/log.log'
+    """Tests loading of values from environment"""
+    test_out_directory = "random/directory_output"
+    test_temp_directory = "random/directory_temp"
+    test_init_directory = "random/directory_init"
+    test_log_level = "random_log_level"
+    test_log_file = "random/log.log"
 
-    monkeypatch.setenv('NFT_OUTPUT', test_out_directory)
-    monkeypatch.setenv('NFT_TEMP', test_temp_directory)
-    monkeypatch.setenv('NFT_INIT', test_init_directory)
-    monkeypatch.setenv('NFT_LOG_LEVEL', test_log_level)
-    monkeypatch.setenv('NFT_LOG', test_log_file)
+    monkeypatch.setenv("NFT_OUTPUT", test_out_directory)
+    monkeypatch.setenv("NFT_TEMP", test_temp_directory)
+    monkeypatch.setenv("NFT_INIT", test_init_directory)
+    monkeypatch.setenv("NFT_LOG_LEVEL", test_log_level)
+    monkeypatch.setenv("NFT_LOG", test_log_file)
 
     nftest_env = NFTestENV()
 
@@ -27,7 +27,7 @@ def test_nftest_env_load(monkeypatch):
 
 
 def test_singleton():
-    '''Tests singleton pattern'''
+    """Tests singleton pattern"""
     nftest_env1 = NFTestENV()
     nftest_env2 = NFTestENV()
 

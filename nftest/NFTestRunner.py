@@ -18,28 +18,28 @@ class NFTestRunner:
         """Constructor"""
         self._global = None
         self._env = NFTestENV()
-        self._logger = getLogger('NFTest')
+        self._logger = getLogger("NFTest")
         self.cases = cases or []
 
     def load_from_config(self, config_yaml: str, target_cases: List[str]):
         """Load test info from config file."""
         validate_yaml(config_yaml)
-        with open(config_yaml, 'rt', encoding='utf-8') as handle:
+        with open(config_yaml, "rt", encoding="utf-8") as handle:
             config = yaml.safe_load(handle)
-            self._global = NFTestGlobal(**config['global'])
-            for case in config['cases']:
-                if 'asserts' in case:
-                    asserts = [NFTestAssert(**ass) for ass in case['asserts']]
+            self._global = NFTestGlobal(**config["global"])
+            for case in config["cases"]:
+                if "asserts" in case:
+                    asserts = [NFTestAssert(**ass) for ass in case["asserts"]]
                 else:
                     asserts = []
-                case['asserts'] = asserts
-                case['nf_configs'] = (
-                    [case.pop('nf_config')] if case.get('nf_config', None) else []
+                case["asserts"] = asserts
+                case["nf_configs"] = (
+                    [case.pop("nf_config")] if case.get("nf_config", None) else []
                 )
-                if 'reference_files' in case:
-                    case['reference_params'] = [
+                if "reference_files" in case:
+                    case["reference_params"] = [
                         validate_reference(**reference_file)
-                        for reference_file in case.pop('reference_files')
+                        for reference_file in case.pop("reference_files")
                     ]
                 test_case = NFTestCase(**case)
                 test_case.combine_global(self._global)
@@ -68,14 +68,14 @@ class NFTestRunner:
 
     def print_prolog(self):
         """Print prolog"""
-        prolog = ''
+        prolog = ""
         terminal_width = shutil.get_terminal_size().columns
-        header = ' NFTEST STARTS '
+        header = " NFTEST STARTS "
         half_width = int((terminal_width - len(header)) / 2)
         prolog = (
-            '=' * half_width
+            "=" * half_width
             + header
-            + '=' * (terminal_width - len(header) - half_width)
+            + "=" * (terminal_width - len(header) - half_width)
         )
         print(prolog, flush=True)
-        self._logger.info('Beginning tests...')
+        self._logger.info("Beginning tests...")

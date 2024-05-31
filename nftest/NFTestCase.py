@@ -38,7 +38,7 @@ class NFTestCase:
         profiles: List[str] = None,
         params_file: str = None,
         reference_params: List[Tuple[str, str]] = None,
-        output_directory_param_name: str = 'output_dir',
+        output_directory_param_name: str = "output_dir",
         asserts: List[NFTestAssert] = None,
         temp_dir: str = None,
         remove_temp: bool = None,
@@ -48,11 +48,11 @@ class NFTestCase:
     ):
         """Constructor"""
         self._env = NFTestENV()
-        self._logger = logging.getLogger('NFTest')
+        self._logger = logging.getLogger("NFTest")
         self._nflogger = logging.getLogger("console")
         self.name = name
         self.name_for_output = re.sub(
-            r'[^a-zA-Z0-9_\-.]', '', self.name.replace(' ', '-')
+            r"[^a-zA-Z0-9_\-.]", "", self.name.replace(" ", "-")
         )
         self.message = message
         self.nf_script = nf_script
@@ -101,12 +101,12 @@ class NFTestCase:
     def test(self) -> bool:
         """Run test cases."""
         if self.skip:
-            self._logger.info(' [ skipped ]')
+            self._logger.info(" [ skipped ]")
             return True
 
         nextflow_succeeded = self.submit()
         if not nextflow_succeeded:
-            self._logger.error(' [ failed ]')
+            self._logger.error(" [ failed ]")
             return False
 
         for ass in self.asserts:
@@ -117,9 +117,9 @@ class NFTestCase:
                 ass.assert_expected()
             except Exception as error:
                 self._logger.error(error.args)
-                self._logger.error(' [ failed ]')
+                self._logger.error(" [ failed ]")
                 raise error
-        self._logger.info(' [ succeed ]')
+        self._logger.info(" [ succeed ]")
         return True
 
     def submit(self) -> sp.CompletedProcess:
@@ -206,5 +206,5 @@ class NFTestCase:
 
     def print_prolog(self):
         """Print prolog message"""
-        prolog = f'{self.name}: {self.message}'
+        prolog = f"{self.name}: {self.message}"
         self._logger.info(prolog)

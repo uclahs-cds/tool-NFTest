@@ -22,12 +22,12 @@ class NFTestENV(metaclass=Singleton):
         """Post-init set env variables"""
         NFTestENV.load_env()
 
-        self.NFT_OUTPUT = os.getenv('NFT_OUTPUT', default='./')
-        self.NFT_TEMP = os.getenv('NFT_TEMP', default='./')
-        self.NFT_INIT = os.getenv('NFT_INIT', default=str(os.getcwd()))
-        self.NFT_LOG_LEVEL = os.getenv('NFT_LOG_LEVEL', default='INFO')
+        self.NFT_OUTPUT = os.getenv("NFT_OUTPUT", default="./")
+        self.NFT_TEMP = os.getenv("NFT_TEMP", default="./")
+        self.NFT_INIT = os.getenv("NFT_INIT", default=str(os.getcwd()))
+        self.NFT_LOG_LEVEL = os.getenv("NFT_LOG_LEVEL", default="INFO")
         self.NFT_LOG = os.getenv(
-            'NFT_LOG',
+            "NFT_LOG",
             default=os.path.join(
                 self.NFT_OUTPUT,
                 f'log-nftest-{datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")}.log',
@@ -39,12 +39,12 @@ class NFTestENV(metaclass=Singleton):
         """Load and set env variables"""
         dirs_to_check = []
         dirs_to_check.append(os.getcwd())
-        dirs_to_check.append(os.path.expanduser('~'))
+        dirs_to_check.append(os.path.expanduser("~"))
         for adir in dirs_to_check:
-            if not load_dotenv(os.path.join(adir, '.env')):
-                print(f'LOG: .env not found in {adir}.', flush=True)
+            if not load_dotenv(os.path.join(adir, ".env")):
+                print(f"LOG: .env not found in {adir}.", flush=True)
             else:
-                print(f'LOG: Loaded .env from {adir}', flush=True)
+                print(f"LOG: Loaded .env from {adir}", flush=True)
                 return
 
-        print('WARN: unable to find .env. Default values will be used.', flush=True)
+        print("WARN: unable to find .env. Default values will be used.", flush=True)

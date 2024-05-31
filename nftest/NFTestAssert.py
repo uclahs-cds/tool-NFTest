@@ -15,11 +15,11 @@ class NFTestAssert:
     """Defines how nextflow test results are asserted."""
 
     def __init__(
-        self, actual: str, expect: str, method: str = 'md5', script: str = None
+        self, actual: str, expect: str, method: str = "md5", script: str = None
     ):
         """Constructor"""
         self._env = NFTestENV()
-        self._logger = getLogger('NFTest')
+        self._logger = getLogger("NFTest")
         self.actual = actual
         self.expect = expect
         self.method = method
@@ -35,13 +35,13 @@ class NFTestAssert:
     def assert_exists(self) -> None:
         "Assert that the expected and actual files exist."
         if not self.actual.exists():
-            self._logger.error('Actual file not found: %s', self.actual)
+            self._logger.error("Actual file not found: %s", self.actual)
             raise FileNotFoundError(
                 errno.ENOENT, os.strerror(errno.ENOENT), self.actual
             )
 
         if not self.expect.exists():
-            self._logger.error('Expect file not found: %s', self.expect)
+            self._logger.error("Expect file not found: %s", self.expect)
             raise FileNotFoundError(
                 errno.ENOENT, os.strerror(errno.ENOENT), self.expect
             )
@@ -63,11 +63,11 @@ class NFTestAssert:
         assert_method = self.get_assert_method()
         try:
             assert assert_method(self.actual, self.expect)
-            self._logger.debug('Assertion passed')
+            self._logger.debug("Assertion passed")
         except AssertionError as error:
-            self._logger.error('Assertion failed')
-            self._logger.error('Actual: %s', self.actual)
-            self._logger.error('Expect: %s', self.expect)
+            self._logger.error("Assertion failed")
+            self._logger.error("Actual: %s", self.actual)
+            self._logger.error("Expect: %s", self.expect)
             raise error
 
     def get_assert_method(self) -> Callable:
@@ -85,7 +85,7 @@ class NFTestAssert:
                 return process.returncode == 0
 
             return func
-        if self.method == 'md5':
+        if self.method == "md5":
 
             def func(actual, expect):
                 self._logger.debug("md5 %s %s", actual, expect)
@@ -94,5 +94,5 @@ class NFTestAssert:
                 return actual_value == expect_value
 
             return func
-        self._logger.error('assert method %s unknown.', self.method)
-        raise ValueError(f'assert method {self.method} unknown.')
+        self._logger.error("assert method %s unknown.", self.method)
+        raise ValueError(f"assert method {self.method} unknown.")
