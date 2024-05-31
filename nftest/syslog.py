@@ -1,6 +1,7 @@
 """
 Module for a system to capture Nextflow logs via syslog.
 """
+
 import logging
 import re
 import socketserver
@@ -19,7 +20,8 @@ LEVELS = [
 ]
 # fmt: on
 
-SYSLOG_RE = re.compile(r"""
+SYSLOG_RE = re.compile(
+    r"""
     ^                               # Start of line
     <(?P<priority>\d+)>             # Priority
     (?P<month>\w{3})\s              # Month
@@ -28,7 +30,9 @@ SYSLOG_RE = re.compile(r"""
     (?P<hostname>\S+)\s             # Hostname
     (?P<message>.*)                 # Message
     $                               # End of line
-    """, re.VERBOSE | re.DOTALL)
+    """,
+    re.VERBOSE | re.DOTALL,
+)
 MESSAGE_RE = re.compile(r"^nextflow:\s+\w+\s+\[(?P<thread>.+?)\] \S+ - ")
 
 
@@ -82,31 +86,28 @@ def syslog_filter(record):
 
 class SyslogServer(socketserver.ThreadingUDPServer):
     "A UDPServer that logs itself starting up and shutting down."
+
     @classmethod
     def make_server(cls):
         "Create a server with a random port to handle syslogs."
-        return cls(
-            server_address=("127.0.0.1", 0),
-            RequestHandlerClass=SyslogHandler
-        )
+        return cls(server_address=("127.0.0.1", 0), RequestHandlerClass=SyslogHandler)
 
     def serve_forever(self, poll_interval=0.5):
         logging.getLogger(__name__).debug(
-            "Syslog server at %s:%d starting up",
-            *self.server_address
+            "Syslog server at %s:%d starting up", *self.server_address
         )
         return super().serve_forever(poll_interval)
 
     def shutdown(self):
         logging.getLogger(__name__).debug(
-            "Syslog server at %s:%d shutting down",
-            *self.server_address
+            "Syslog server at %s:%d shutting down", *self.server_address
         )
         return super().shutdown()
 
 
 class SyslogHandler(socketserver.BaseRequestHandler):
     "A simple syslog-like server to capture formatted logs from Nextflow."
+
     def handle(self):
         # This is a syslog message from Nextflow
         logging.getLogger("nextflow").info(self.request[0])

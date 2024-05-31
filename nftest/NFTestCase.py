@@ -1,4 +1,5 @@
-""" NF Test case """
+"""NF Test case"""
+
 from __future__ import annotations
 
 import logging
@@ -23,23 +24,36 @@ if TYPE_CHECKING:
     from nftest.NFTestAssert import NFTestAssert
 
 
-class NFTestCase():
-    """ Defines the NF test case """
+class NFTestCase:
+    """Defines the NF test case"""
+
     # pylint: disable=R0902
     # pylint: disable=R0913
-    def __init__(self, name:str=None, message:str=None, nf_script:str=None,
-            nf_configs:List[str]=None, profiles:List[str]=None, params_file:str=None,
-            reference_params:List[Tuple[str,str]]=None,
-            output_directory_param_name:str='output_dir',
-            asserts:List[NFTestAssert]=None, temp_dir:str=None,
-            remove_temp:bool=None, clean_logs:bool=None,
-            skip:bool=False, verbose:bool=False):
-        """ Constructor """
+    def __init__(
+        self,
+        name: str = None,
+        message: str = None,
+        nf_script: str = None,
+        nf_configs: List[str] = None,
+        profiles: List[str] = None,
+        params_file: str = None,
+        reference_params: List[Tuple[str, str]] = None,
+        output_directory_param_name: str = 'output_dir',
+        asserts: List[NFTestAssert] = None,
+        temp_dir: str = None,
+        remove_temp: bool = None,
+        clean_logs: bool = None,
+        skip: bool = False,
+        verbose: bool = False,
+    ):
+        """Constructor"""
         self._env = NFTestENV()
         self._logger = logging.getLogger('NFTest')
         self._nflogger = logging.getLogger("console")
         self.name = name
-        self.name_for_output = re.sub(r'[^a-zA-Z0-9_\-.]', '', self.name.replace(' ', '-'))
+        self.name_for_output = re.sub(
+            r'[^a-zA-Z0-9_\-.]', '', self.name.replace(' ', '-')
+        )
         self.message = message
         self.nf_script = nf_script
         self.nf_configs = nf_configs or []
@@ -54,20 +68,22 @@ class NFTestCase():
         self.skip = skip
         self.verbose = verbose
 
-    def resolve_actual(self, asserts:List[NFTestAssert]=None):
-        """ Resolve the file path for actual file """
+    def resolve_actual(self, asserts: List[NFTestAssert] = None):
+        """Resolve the file path for actual file"""
         if not asserts:
             return []
 
         for assertion in asserts:
             assertion.actual = str(
-                Path(self._env.NFT_OUTPUT)/self.name_for_output/assertion.actual)
+                Path(self._env.NFT_OUTPUT) / self.name_for_output / assertion.actual
+            )
 
         return asserts
 
     # pylint: disable=E0213
     def test_wrapper(func: Callable):
-        """ Wrap tests with additional logging and cleaning. """
+        """Wrap tests with additional logging and cleaning."""
+
         def wrapper(self):
             # pylint: disable=E1102
             self.print_prolog()
@@ -83,7 +99,7 @@ class NFTestCase():
 
     @test_wrapper
     def test(self) -> bool:
-        """ Run test cases. """
+        """Run test cases."""
         if self.skip:
             self._logger.info(' [ skipped ]')
             return True
@@ -107,7 +123,7 @@ class NFTestCase():
         return True
 
     def submit(self) -> sp.CompletedProcess:
-        """ Submit a nextflow run """
+        """Submit a nextflow run"""
         # Use ExitStack to handle the multiple nested context managers
         with ExitStack() as stack:
             # Create a server with a random port to accept syslogs from
@@ -123,7 +139,7 @@ class NFTestCase():
             threading.Thread(
                 name="SyslogThread",
                 target=syslog_server.serve_forever,
-                kwargs={"poll_interval": 1}
+                kwargs={"poll_interval": 1},
             ).start()
 
             syslog_address = ":".join(
@@ -133,9 +149,10 @@ class NFTestCase():
             nextflow_command = [
                 "nextflow",
                 "-quiet",
-                "-syslog", syslog_address,
+                "-syslog",
+                syslog_address,
                 "run",
-                self.nf_script
+                self.nf_script,
             ]
 
             if self.profiles:
@@ -152,30 +169,26 @@ class NFTestCase():
 
             nextflow_command.extend([
                 f"--{self.output_directory_param_name}",
-                Path(self._env.NFT_OUTPUT, self.name_for_output)
+                Path(self._env.NFT_OUTPUT, self.name_for_output),
             ])
 
-            envmod = {
-                "NXF_WORK": self.temp_dir
-            }
+            envmod = {"NXF_WORK": self.temp_dir}
 
             # Log the shell equivalent of this command
             self._logger.info(
                 "%s %s",
                 " ".join([f"{k}={shlex.quote(v)}" for k, v in envmod.items()]),
-                sp.list2cmdline(nextflow_command)
+                sp.list2cmdline(nextflow_command),
             )
 
             process = popen_with_logger(
-                nextflow_command,
-                env={**os.environ, **envmod},
-                logger=self._nflogger
+                nextflow_command, env={**os.environ, **envmod}, logger=self._nflogger
             )
 
         return process
 
     def combine_global(self, _global: NFTestGlobal) -> None:
-        """ Combine test case configs with the global configs. """
+        """Combine test case configs with the global configs."""
         if _global.nf_config:
             self.nf_configs.insert(0, _global.nf_config)
 
@@ -192,6 +205,6 @@ class NFTestCase():
             self.clean_logs = _global.clean_logs
 
     def print_prolog(self):
-        """ Print prolog message """
+        """Print prolog message"""
         prolog = f'{self.name}: {self.message}'
         self._logger.info(prolog)

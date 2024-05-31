@@ -1,4 +1,5 @@
 """Test module for the syslog filter."""
+
 import logging
 
 from nftest.syslog import syslog_filter, LEVELS
@@ -37,8 +38,7 @@ def test_syslog_filter(caplog):
     assert 130 % 8 == 2
     assert LEVELS[2] == logging.CRITICAL
 
-    assert caplog.record_tuples[-1] == \
-        ("nextflow", logging.CRITICAL, "Unable...")
+    assert caplog.record_tuples[-1] == ("nextflow", logging.CRITICAL, "Unable...")
 
 
 def test_syslog_filter_multline(caplog):

@@ -1,5 +1,6 @@
 # pylint: disable=W0212
-''' Test module for NFTestAssert '''
+'''Test module for NFTestAssert'''
+
 import datetime
 
 import mock
@@ -7,9 +8,10 @@ import pytest
 
 from nftest.NFTestAssert import NFTestAssert
 
+
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_get_assert_method_value_error(mock_assert):
-    ''' Tests value error from get_assert_method when given `method` is not supported '''
+    '''Tests value error from get_assert_method when given `method` is not supported'''
     assert_method = 'nomethod'
     mock_assert.return_value.script = None
     mock_assert.return_value.method = assert_method
@@ -20,18 +22,20 @@ def test_get_assert_method_value_error(mock_assert):
 
     assert str(val_error.value) == f'assert method {assert_method} unknown.'
 
+
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_get_assert_method_script(mock_assert):
-    ''' Tests getting script function from get_assert_method '''
+    '''Tests getting script function from get_assert_method'''
     script_method = 'path/to/test/script.sh'
     mock_assert.return_value.script = script_method
     mock_assert.return_value._logger.error = lambda x, y: None
 
     assert callable(mock_assert.get_assert_method(mock_assert()))
 
+
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_get_assert_method_method(mock_assert):
-    ''' Tests getting method function from get_assert_method '''
+    '''Tests getting method function from get_assert_method'''
     mock_assert.return_value.script = None
     mock_assert.return_value.method = 'md5'
     mock_assert.return_value._logger.error = lambda x, y: None
@@ -65,12 +69,11 @@ def test_assert_exists(mock_assert):
 
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_assert_updated(mock_assert):
-    ''' Tests for failing assertion '''
+    '''Tests for failing assertion'''
     timestamp = 1689805542.4275217
 
     mock_assert.return_value.startup_time = datetime.datetime.fromtimestamp(
-        timestamp,
-        tz=datetime.timezone.utc
+        timestamp, tz=datetime.timezone.utc
     )
 
     # Test expected to fail with a time before the start time
@@ -90,7 +93,7 @@ def test_assert_updated(mock_assert):
 
 @mock.patch('nftest.NFTestAssert.NFTestAssert', wraps=NFTestAssert)
 def test_assert_expected(mock_assert):
-    ''' Tests for passing assertion '''
+    '''Tests for passing assertion'''
     mock_assert.return_value._logger.error = lambda x, y=None: None
 
     # A passing test should not raise an error
@@ -102,24 +105,17 @@ def test_assert_expected(mock_assert):
     with pytest.raises(AssertionError):
         NFTestAssert.assert_expected(mock_assert())
 
+
 @pytest.mark.parametrize(
-    'glob_return_value,case_pass',
-    [
-        ([], False),
-        (['a', 'b'], False),
-        (['a'], True)
-    ]
+    'glob_return_value,case_pass', [([], False), (['a', 'b'], False), (['a'], True)]
 )
 @mock.patch('glob.glob')
 @mock.patch('nftest.NFTestAssert.NFTestENV')
 @mock.patch('logging.getLogger')
 def test_identify_assertions_files(
-    mock_getlogger,
-    mock_env,
-    mock_glob,
-    glob_return_value,
-    case_pass):
-    ''' Tests for proper file identification '''
+    mock_getlogger, mock_env, mock_glob, glob_return_value, case_pass
+):
+    '''Tests for proper file identification'''
 
     mock_glob.return_value = glob_return_value
     mock_env.return_value = None

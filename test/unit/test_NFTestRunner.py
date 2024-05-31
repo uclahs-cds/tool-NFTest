@@ -1,14 +1,18 @@
-''' Test module for NFTestRunner '''
+'''Test module for NFTestRunner'''
+
 from dataclasses import dataclass
 from unittest.mock import mock_open
 import mock
 from nftest.NFTestRunner import NFTestRunner
 
+
 @dataclass
-class RunnerData():
-    """ Basic dataclass for holding runner data """
+class RunnerData:
+    """Basic dataclass for holding runner data"""
+
     _global = None
     cases = []
+
 
 # pylint: disable=W0613
 @mock.patch('nftest.NFTestRunner.NFTestCase')
@@ -17,13 +21,10 @@ class RunnerData():
 @mock.patch('nftest.NFTestRunner.NFTestGlobal')
 @mock.patch('nftest.NFTestRunner.open', new_callable=mock_open)
 @mock.patch('nftest.NFTestRunner.NFTestRunner', wraps=NFTestRunner)
-def test_load_from_config(mock_runner,
-    mock_runner_open,
-    mock_global,
-    mock_validate_yaml,
-    mock_yaml,
-    mock_case):
-    ''' Tests for loading from config file '''
+def test_load_from_config(
+    mock_runner, mock_runner_open, mock_global, mock_validate_yaml, mock_yaml, mock_case
+):
+    '''Tests for loading from config file'''
     mock_validate_yaml.return_value = lambda x: True
     mock_global.return_value = lambda: None
     mock_runner.return_value.NFTestGlobal = lambda: None
@@ -31,8 +32,8 @@ def test_load_from_config(mock_runner,
         'global': {},
         'cases': [
             {'name': 'case1', 'nf_config': None},
-            {'name': 'case2', 'nf_config': None}
-            ]
+            {'name': 'case2', 'nf_config': None},
+        ],
     }
     mock_case.return_value = lambda **kwargs: kwargs['name']
     mock_case.return_value.combine_global = lambda x: None

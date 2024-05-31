@@ -1,7 +1,9 @@
-""" Module containg Singleton metaclass """
+"""Module containg Singleton metaclass"""
+
 
 class Singleton(type):
-    """ Singleton metaclass """
+    """Singleton metaclass"""
+
     _instances = {}
 
     def __call__(cls, *args, **kwargs):

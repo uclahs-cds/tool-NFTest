@@ -1,12 +1,14 @@
 # pylint: disable=W0212
-''' Test module for NFTestCase '''
+'''Test module for NFTestCase'''
+
 from types import SimpleNamespace
 import mock
 from nftest.NFTestCase import NFTestCase
 
+
 @mock.patch('nftest.NFTestCase.NFTestCase', wraps=NFTestCase)
 def test_combine_global(mock_case):
-    ''' Tests for using global config parameters '''
+    '''Tests for using global config parameters'''
     test_remove_temp = True
     test_temp_directory = 'global_temp_dir'
     test_clean_logs = True
@@ -24,16 +26,19 @@ def test_combine_global(mock_case):
     assert case.temp_dir == test_temp_directory
     assert case.clean_logs == test_clean_logs
 
+
 @mock.patch('nftest.common.selectors')
 @mock.patch('nftest.common.subprocess.Popen')
 @mock.patch('nftest.NFTestCase.NFTestCase', wraps=NFTestCase)
 def test_submit(mock_case, mock_sp, mock_selectors):
-    ''' Tests for submission step '''
+    '''Tests for submission step'''
     test_stdout = 'hello world'
 
-    mock_sp.return_value.__enter__ = lambda x: SimpleNamespace(
-        **{'stdout': test_stdout, 'stderr': '', 'poll': lambda: True}
-    )
+    mock_sp.return_value.__enter__ = lambda x: SimpleNamespace(**{
+        'stdout': test_stdout,
+        'stderr': '',
+        'poll': lambda: True,
+    })
     mock_selectors.DefaultSelector.register.return_value = lambda x, y, z: None
 
     mock_case.return_value.params_file = ''
