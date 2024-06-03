@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Make `nftest run` exit with the number of failed tests
 - Use `shell=False` for subprocess
 - Capture Nextflow logs via syslog rather than console
+- Format all code with ruff
 
 ### Fixed
 - Make `nftest` with no arguments print usage and exit
