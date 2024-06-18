@@ -108,12 +108,9 @@ class NFTestCase:
             self._logger.error(" [ failed ]")
             return False
 
-        for ass in self.asserts:
+        for assertion in self.asserts:
             try:
-                ass.identify_assertion_files()
-                ass.assert_exists()
-                ass.assert_updated()
-                ass.assert_expected()
+                assertion.perform_assertions()
             except Exception as error:
                 self._logger.error(error.args)
                 self._logger.error(" [ failed ]")
