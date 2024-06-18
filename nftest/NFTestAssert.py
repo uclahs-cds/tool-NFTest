@@ -9,8 +9,12 @@ from nftest.common import calculate_checksum, resolve_single_path, popen_with_lo
 from nftest.NFTestENV import NFTestENV
 
 
-class NFTestAssertionError(Exception):
-    "An exception indicating that a test assertion failed."
+class NotUpdatedError(Exception):
+    "An exception indicating that file was not updated."
+
+
+class MismatchedContentsError(Exception):
+    "An exception that the contents are mismatched."
 
 
 class NFTestAssert:
@@ -50,7 +54,7 @@ class NFTestAssert:
         self._logger.debug("Actual mod time:    %s", file_mod_time)
 
         if self.startup_time >= file_mod_time:
-            raise NFTestAssertionError(
+            raise NotUpdatedError(
                 f"{str(self.actual)} was not modified by this pipeline"
             )
 
@@ -59,7 +63,7 @@ class NFTestAssert:
             self._logger.error("Assertion failed")
             self._logger.error("Actual: %s", self.actual)
             self._logger.error("Expect: %s", self.expect)
-            raise NFTestAssertionError("File comparison failed")
+            raise MismatchedContentsError("File comparison failed")
 
         self._logger.debug("Assertion passed")
 
