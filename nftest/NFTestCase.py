@@ -27,8 +27,7 @@ if TYPE_CHECKING:
 class NFTestCase:
     """Defines the NF test case"""
 
-    # pylint: disable=R0902
-    # pylint: disable=R0913
+    # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         name: str = None,
