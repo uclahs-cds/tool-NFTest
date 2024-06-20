@@ -35,7 +35,6 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
-# pylint: disable=W0212
 def add_subparser_init(subparsers: argparse._SubParsersAction):
     """Add subparser for init"""
     parser: argparse.ArgumentParser = subparsers.add_parser(

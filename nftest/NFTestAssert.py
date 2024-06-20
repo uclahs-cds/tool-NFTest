@@ -72,10 +72,8 @@ class NFTestAssert:
 
     def get_assert_method(self) -> Callable:
         """Get the assert method"""
-        # pylint: disable=E0102
         if self.script is not None:
-
-            def func(actual, expect):
+            def script_function(actual, expect):
                 cmd = [self.script, actual, expect]
                 self._logger.debug(subprocess.list2cmdline(cmd))
 
@@ -84,15 +82,16 @@ class NFTestAssert:
                 )
                 return process.returncode == 0
 
-            return func
-        if self.method == "md5":
+            return script_function
 
-            def func(actual, expect):
+        if self.method == "md5":
+            def md5_function(actual, expect):
                 self._logger.debug("md5 %s %s", actual, expect)
                 actual_value = calculate_checksum(actual)
                 expect_value = calculate_checksum(expect)
                 return actual_value == expect_value
 
-            return func
+            return md5_function
+
         self._logger.error("assert method %s unknown.", self.method)
         raise ValueError(f"assert method {self.method} unknown.")
