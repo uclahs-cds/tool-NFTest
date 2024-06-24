@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 - Make `nftest` with no arguments print usage and exit
+- Resolve non-determinism in NFTestENV unit tests
 
 ---
 
