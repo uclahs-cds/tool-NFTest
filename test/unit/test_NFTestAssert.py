@@ -3,7 +3,6 @@
 import logging
 import stat
 import textwrap
-import time
 
 import pytest
 
@@ -134,7 +133,6 @@ def fixture_configured_test(
     )
 
     if file_updated and actual_file is not None:
-        time.sleep(0.1)
         actual_file.write_bytes(actual_file.read_bytes())
 
     return assertion
