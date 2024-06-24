@@ -81,6 +81,9 @@ def validate_reference(
 
     _logger = logging.getLogger("NFTest")
 
+    if reference_checksum_type.lower() not in {"md5"}:
+        _logger.warning("reference_checksum_type must be `md5`")
+
     actual_checksum = calculate_checksum(Path(reference_parameter_path))
 
     if actual_checksum != reference_checksum:
