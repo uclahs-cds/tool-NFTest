@@ -133,7 +133,10 @@ def fixture_configured_test(
     )
 
     if file_updated and actual_file is not None:
-        actual_file.write_bytes(actual_file.read_bytes())
+        # Unlink and re-write the file
+        temp_content = actual_file.read_bytes()
+        actual_file.unlink()
+        actual_file.write_bytes(temp_content)
 
     return assertion
 

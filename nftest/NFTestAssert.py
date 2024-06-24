@@ -1,7 +1,6 @@
 """NF Test assert"""
 
 import datetime
-import os
 import subprocess
 from typing import Callable, Optional
 from logging import getLogger, DEBUG
@@ -52,7 +51,7 @@ class NFTestAssert:
 
         # Assert that the actual file was updated during this test run
         file_mod_time = datetime.datetime.fromtimestamp(
-            os.stat(actual_path).st_mtime, tz=datetime.timezone.utc
+            actual_path.stat().st_mtime, tz=datetime.timezone.utc
         )
 
         self._logger.debug("Test creation time: %s", self.startup_time)
