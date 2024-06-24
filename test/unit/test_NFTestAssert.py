@@ -120,11 +120,11 @@ def fixture_configured_test(
         expect_file = tmp_path / f"{index}.expect"
         expect_file.write_text(file_contents[0], encoding="utf-8")
 
-    actual_file = None
-
-    for index in range(actual_count):
-        actual_file = tmp_path / f"{index}.actual"
-        actual_file.write_text(file_contents[1], encoding="utf-8")
+    if not file_updated:
+        # Create the actual files before the test
+        for index in range(actual_count):
+            actual_file = tmp_path / f"{index}.actual"
+            actual_file.write_text(file_contents[1], encoding="utf-8")
 
     assertion = NFTestAssert(
         expect=str(tmp_path / "*.expect"),
@@ -133,8 +133,11 @@ def fixture_configured_test(
         method=method,
     )
 
-    if file_updated and actual_file is not None:
-        os.utime(actual_file)
+    if file_updated:
+        # Create the actual files after the test
+        for index in range(actual_count):
+            actual_file = tmp_path / f"{index}.actual"
+            actual_file.write_text(file_contents[1], encoding="utf-8")
 
     return assertion
 
