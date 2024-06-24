@@ -1,15 +1,12 @@
 """Test module for NFTestAssert"""
+
 import logging
 import stat
 import textwrap
 
 import pytest
 
-from nftest.NFTestAssert import (
-    NFTestAssert,
-    NotUpdatedError,
-    MismatchedContentsError
-)
+from nftest.NFTestAssert import NFTestAssert, NotUpdatedError, MismatchedContentsError
 
 
 @pytest.fixture(name="custom_script", params=[True, False])
@@ -25,7 +22,8 @@ def fixture_custom_script(request, tmp_path):
     # Write a custom script that prints out an obvious sentinel value then
     # executes `diff`
     script = tmp_path / "testscript.sh"
-    script.write_text(textwrap.dedent("""\
+    script.write_text(
+        textwrap.dedent("""\
         #!/bin/bash
         set -euo pipefail
 
@@ -33,22 +31,33 @@ def fixture_custom_script(request, tmp_path):
 
         exec diff "$@"
         """),
-        encoding="utf-8")
+        encoding="utf-8",
+    )
 
     script.chmod(script.stat().st_mode | stat.S_IXUSR)
     return script
 
 
-@pytest.fixture(name="method", params=["md5", ])
+@pytest.fixture(
+    name="method",
+    params=[
+        "md5",
+    ],
+)
 def fixture_method(request):
     "A fixture for the NFTestAssert `method` argument."
     return request.param
 
 
-@pytest.fixture(name="file_updated", params=[
-    True,
-    pytest.param(False, marks=pytest.mark.xfail(strict=True, raises=NotUpdatedError))
-])
+@pytest.fixture(
+    name="file_updated",
+    params=[
+        True,
+        pytest.param(
+            False, marks=pytest.mark.xfail(strict=True, raises=NotUpdatedError)
+        ),
+    ],
+)
 def fixture_file_updated(request):
     "A fixture for whether the actual file was modified during the test."
     return request.param
@@ -73,29 +82,36 @@ def fixture_expect_count(request):
     return request.param
 
 
-@pytest.fixture(name="file_contents", params=[
-    ("", ""),
-    ("matching", "matching"),
-    pytest.param(
-        ("something", ""),
-        marks=pytest.mark.xfail(strict=True, raises=MismatchedContentsError)),
-    pytest.param(
-        ("something", "SOMETHING"),
-        marks=pytest.mark.xfail(strict=True, raises=MismatchedContentsError)),
-])
+@pytest.fixture(
+    name="file_contents",
+    params=[
+        ("", ""),
+        ("matching", "matching"),
+        pytest.param(
+            ("something", ""),
+            marks=pytest.mark.xfail(strict=True, raises=MismatchedContentsError),
+        ),
+        pytest.param(
+            ("something", "SOMETHING"),
+            marks=pytest.mark.xfail(strict=True, raises=MismatchedContentsError),
+        ),
+    ],
+)
 def fixture_file_contents(request):
     "A fixture for the contents of the expect and actual files."
     return request.param
 
 
 @pytest.fixture(name="configured_test")
-def fixture_configured_test(tmp_path,
-                            custom_script,
-                            method,
-                            expect_count,
-                            actual_count,
-                            file_updated,
-                            file_contents):
+def fixture_configured_test(
+    tmp_path,
+    custom_script,
+    method,
+    expect_count,
+    actual_count,
+    file_updated,
+    file_contents,
+):
     """
     A fixture to set up an NFTestAssert referring to a temporary directory.
     """
@@ -113,7 +129,7 @@ def fixture_configured_test(tmp_path,
         expect=str(tmp_path / "*.expect"),
         actual=str(tmp_path / "*.actual"),
         script=custom_script,
-        method=method
+        method=method,
     )
 
     if file_updated and actual_file is not None:

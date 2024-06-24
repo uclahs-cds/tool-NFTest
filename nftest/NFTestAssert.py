@@ -21,7 +21,11 @@ class NFTestAssert:
     """Defines how nextflow test results are asserted."""
 
     def __init__(
-        self, actual: str, expect: str, method: str = "md5", script: Optional[str] = None
+        self,
+        actual: str,
+        expect: str,
+        method: str = "md5",
+        script: Optional[str] = None,
     ):
         """Constructor"""
         self._env = NFTestENV()
@@ -70,6 +74,7 @@ class NFTestAssert:
     def get_assert_method(self) -> Callable:
         """Get the assert method"""
         if self.script is not None:
+
             def script_function(actual, expect):
                 cmd = [self.script, actual, expect]
                 self._logger.debug(subprocess.list2cmdline(cmd))
@@ -82,6 +87,7 @@ class NFTestAssert:
             return script_function
 
         if self.method == "md5":
+
             def md5_function(actual, expect):
                 self._logger.debug("md5 %s %s", actual, expect)
                 actual_value = calculate_checksum(actual)

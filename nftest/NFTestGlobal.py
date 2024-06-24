@@ -6,6 +6,7 @@ from nftest.NFTestENV import NFTestENV
 
 class NFTestGlobal:
     """Test global settings"""
+
     # pylint: disable=too-few-public-methods
 
     def __init__(
