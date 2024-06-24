@@ -1,6 +1,7 @@
 """Test module for NFTestAssert"""
 
 import logging
+import os
 import stat
 import textwrap
 
@@ -133,10 +134,7 @@ def fixture_configured_test(
     )
 
     if file_updated and actual_file is not None:
-        # Unlink and re-write the file
-        temp_content = actual_file.read_bytes()
-        actual_file.unlink()
-        actual_file.write_bytes(temp_content)
+        os.utime(actual_file)
 
     return assertion
 
