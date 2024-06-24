@@ -1,9 +1,9 @@
 """Test module for NFTestAssert"""
 
 import logging
-import os
 import stat
 import textwrap
+import time
 
 import pytest
 
@@ -135,6 +135,8 @@ def fixture_configured_test(
 
     if file_updated:
         # Create the actual files after the test
+        # Add in an explicit sleep to separate the times
+        time.sleep(0.01)
         for index in range(actual_count):
             actual_file = tmp_path / f"{index}.actual"
             actual_file.write_text(file_contents[1], encoding="utf-8")
