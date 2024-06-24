@@ -79,9 +79,6 @@ def validate_reference(
             f"Please use only alphanumeric, _, -, and . characters in parameter names."
         )
 
-    if reference_checksum_type.lower() not in {"md5"}:
-        raise ValueError("reference_checksum_type must be `md5`")
-
     _logger = logging.getLogger("NFTest")
 
     actual_checksum = calculate_checksum(Path(reference_parameter_path))
