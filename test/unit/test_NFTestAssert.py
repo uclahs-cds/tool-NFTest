@@ -133,7 +133,7 @@ def fixture_configured_test(
     )
 
     if file_updated and actual_file is not None:
-        actual_file.touch()
+        actual_file.write_bytes(actual_file.read_bytes())
 
     return assertion
 
