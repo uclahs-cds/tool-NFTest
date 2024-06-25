@@ -173,22 +173,30 @@ def test_nftest_assert(
 ):
     "Test that assertions appropriately pass or fail based on the parameters."
     if file_updated:
+        # Wait up to 1 second for each file's mtime to update before aborting
+        acceptable_wait = datetime.timedelta(seconds=1)
+
         for actual_file in actual_files.paths:
-            prior_time = actual_file.stat().st_mtime
-            for _ in range(10):
+            wall_time = datetime.datetime.now()
+            prior_time = datetime.datetime.fromtimestamp(
+                actual_file.stat().st_mtime, tz=datetime.timezone.utc
+            )
+
+            while True:
                 actual_file.touch()
 
-                # NFTestAssert uses compares datetimes, which have microsecond
-                # precision. Ensure that the time difference can be resolved.
-                if (
-                    actual_file.stat().st_mtime - prior_time
-                ) > datetime.timedelta.resolution.total_seconds():
+                updated_time = datetime.datetime.fromtimestamp(
+                    actual_file.stat().st_mtime, tz=datetime.timezone.utc
+                )
+
+                if updated_time > prior_time:
                     break
+
+                if datetime.datetime.now() - wall_time > acceptable_wait:
+                    raise RuntimeError("Filesystem timings broken")
 
                 # Sleep for 50 milliseconds before trying again
                 time.sleep(0.05)
-            else:
-                raise RuntimeError("Filesystem timings broken")
 
     with caplog.at_level(logging.DEBUG):
         configured_test.perform_assertions()
