@@ -1,5 +1,6 @@
 """Test module for NFTestAssert"""
 
+import datetime
 import logging
 import stat
 import textwrap
@@ -172,7 +173,19 @@ def test_nftest_assert(
     "Test that assertions appropriately pass or fail based on the parameters."
     if file_updated:
         for actual_file in actual_files.paths:
+            print(
+                "Prior modification time was",
+                datetime.datetime.fromtimestamp(
+                    actual_file.stat().st_mtime, tz=datetime.timezone.utc
+                ),
+            )
             actual_file.touch()
+            print(
+                "Updated modification time is",
+                datetime.datetime.fromtimestamp(
+                    actual_file.stat().st_mtime, tz=datetime.timezone.utc
+                ),
+            )
 
     with caplog.at_level(logging.DEBUG):
         configured_test.perform_assertions()
