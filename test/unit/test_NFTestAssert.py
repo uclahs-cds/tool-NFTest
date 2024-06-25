@@ -180,11 +180,13 @@ def test_nftest_assert(
 
                 # NFTestAssert uses compares datetimes, which have microsecond
                 # precision. Ensure that the time difference can be resolved.
-                if datetime.timedelta(actual_file.stat().st_mtime - prior_time):
+                if (
+                    actual_file.stat().st_mtime - prior_time
+                ) > datetime.timedelta.resolution.total_seconds():
                     break
 
-                # Sleep 5 resolution ticks before trying again
-                time.sleep(5 * datetime.timedelta.resolution.total_seconds())
+                # Sleep for 50 milliseconds before trying again
+                time.sleep(0.05)
             else:
                 raise RuntimeError("Filesystem timings broken")
 
