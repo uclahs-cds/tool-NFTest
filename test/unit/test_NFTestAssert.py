@@ -172,15 +172,18 @@ def test_nftest_assert(
     configured_test, caplog, custom_script, actual_files, file_updated
 ):
     "Test that assertions appropriately pass or fail based on the parameters."
+
+    # Time is monotonic, right?
+    assert configured_test.startup_time <= datetime.datetime.now(
+        tz=datetime.timezone.utc
+    )
+
     if file_updated:
         # Wait up to 1 second for each file's mtime to update before aborting
         acceptable_wait = datetime.timedelta(seconds=1)
 
         for actual_file in actual_files.paths:
             wall_time = datetime.datetime.now()
-            prior_time = datetime.datetime.fromtimestamp(
-                actual_file.stat().st_mtime, tz=datetime.timezone.utc
-            )
 
             while True:
                 actual_file.touch()
@@ -189,7 +192,7 @@ def test_nftest_assert(
                     actual_file.stat().st_mtime, tz=datetime.timezone.utc
                 )
 
-                if updated_time > prior_time:
+                if updated_time > configured_test.startup_time:
                     break
 
                 if datetime.datetime.now() - wall_time > acceptable_wait:
