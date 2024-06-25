@@ -18,10 +18,10 @@ def test_nftest_env_load(monkeypatch):
     monkeypatch.setenv("NFT_LOG", test_log_file)
 
     # Clear any existing singleton value
-    NFTestENV._instances.pop(NFTestENV, None)   # pylint: disable=protected-access
+    NFTestENV._instances.pop(NFTestENV, None)  # pylint: disable=protected-access
     nftest_env = NFTestENV()
 
-    assert NFTestENV in NFTestENV._instances    # pylint: disable=protected-access
+    assert NFTestENV in NFTestENV._instances  # pylint: disable=protected-access
 
     assert nftest_env.NFT_OUTPUT == test_out_directory
     assert nftest_env.NFT_TEMP == test_temp_directory
@@ -37,7 +37,7 @@ def test_singleton():
 
     assert id(nftest_env1) == id(nftest_env2)
 
-    NFTestENV._instances.pop(NFTestENV, None)   # pylint: disable=protected-access
+    NFTestENV._instances.pop(NFTestENV, None)  # pylint: disable=protected-access
     nftest_env3 = NFTestENV()
 
     assert id(nftest_env1) != id(nftest_env3)

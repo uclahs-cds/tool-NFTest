@@ -7,11 +7,11 @@ from dotenv import load_dotenv
 from nftest.Singleton import Singleton
 
 
-# pylint: disable=C0103
 @dataclass
 class NFTestENV(metaclass=Singleton):
     """Class for initializng and holding environment variables."""
 
+    # pylint: disable=invalid-name
     NFT_OUTPUT: str = field(init=False)
     NFT_TEMP: str = field(init=False)
     NFT_INIT: str = field(init=False)

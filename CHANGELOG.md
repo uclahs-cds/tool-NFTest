@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Use `shell=False` for subprocess
 - Capture Nextflow logs via syslog rather than console
 - Format all code with ruff
+- Encapsulate NFTestAssert interface, rewrite tests
 
 ### Fixed
 - Make `nftest` with no arguments print usage and exit
