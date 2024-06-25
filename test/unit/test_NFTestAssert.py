@@ -4,6 +4,7 @@ import datetime
 import logging
 import stat
 import textwrap
+import time
 from collections import namedtuple
 
 import pytest
@@ -173,19 +174,16 @@ def test_nftest_assert(
     "Test that assertions appropriately pass or fail based on the parameters."
     if file_updated:
         for actual_file in actual_files.paths:
-            print(
-                "Prior modification time was",
-                datetime.datetime.fromtimestamp(
-                    actual_file.stat().st_mtime, tz=datetime.timezone.utc
-                ),
-            )
-            actual_file.touch()
-            print(
-                "Updated modification time is",
-                datetime.datetime.fromtimestamp(
-                    actual_file.stat().st_mtime, tz=datetime.timezone.utc
-                ),
-            )
+            prior_time = actual_file.stat().st_mtime
+            for _ in range(10):
+                actual_file.touch()
+                if actual_file.stat().st_mtime != prior_time:
+                    break
+
+                print(f"{time.time()}: Time not updated...")
+                time.sleep(0.01)
+            else:
+                raise RuntimeError("Filesystem timings broken")
 
     with caplog.at_level(logging.DEBUG):
         configured_test.perform_assertions()
