@@ -1,6 +1,5 @@
 """Test module for NFTestAssert"""
 
-import datetime
 import logging
 import stat
 import textwrap
