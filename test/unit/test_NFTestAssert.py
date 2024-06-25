@@ -1,133 +1,187 @@
-# pylint: disable=W0212
 """Test module for NFTestAssert"""
 
-import datetime
+import logging
+import stat
+import textwrap
+from collections import namedtuple
 
-import mock
 import pytest
 
-from nftest.NFTestAssert import NFTestAssert
+from nftest.NFTestAssert import NFTestAssert, NotUpdatedError, MismatchedContentsError
 
 
-@mock.patch("nftest.NFTestAssert.NFTestAssert", wraps=NFTestAssert)
-def test_get_assert_method_value_error(mock_assert):
-    """Tests value error from get_assert_method when given `method` is not supported"""
-    # Make an NFTestAssert object
-    NFTestAssert("", "")
+@pytest.fixture(name="custom_script")
+def fixture_custom_script(request, tmp_path):
+    """
+    A fixture to control usage of a custom `script` parameter.
 
-    assert_method = "nomethod"
-    mock_assert.return_value.script = None
-    mock_assert.return_value.method = assert_method
-    mock_assert.return_value._logger.error = lambda x, y: None
+    The fixture returns the tuple (script_path, sentinel_value).
 
-    with pytest.raises(ValueError) as val_error:
-        mock_assert.get_assert_method(mock_assert())
+    The custom script will echo a sentinel value to console and call `diff`.
+    """
+    Script = namedtuple("Script", ["script", "sentinel"])
 
-    assert str(val_error.value) == f"assert method {assert_method} unknown."
+    if not request.param:
+        return Script(None, None)
 
+    sentinel = "THIS_IS_THE_CUSTOM_SCRIPT"
 
-@mock.patch("nftest.NFTestAssert.NFTestAssert", wraps=NFTestAssert)
-def test_get_assert_method_script(mock_assert):
-    """Tests getting script function from get_assert_method"""
-    script_method = "path/to/test/script.sh"
-    mock_assert.return_value.script = script_method
-    mock_assert.return_value._logger.error = lambda x, y: None
+    # Write a custom script that prints out an obvious sentinel value then
+    # executes `diff`
+    script = tmp_path / "testscript.sh"
+    script.write_text(
+        textwrap.dedent(f"""\
+        #!/bin/bash
+        set -euo pipefail
 
-    assert callable(mock_assert.get_assert_method(mock_assert()))
+        echo "{sentinel}"
 
-
-@mock.patch("nftest.NFTestAssert.NFTestAssert", wraps=NFTestAssert)
-def test_get_assert_method_method(mock_assert):
-    """Tests getting method function from get_assert_method"""
-    mock_assert.return_value.script = None
-    mock_assert.return_value.method = "md5"
-    mock_assert.return_value._logger.error = lambda x, y: None
-
-    assert callable(mock_assert.get_assert_method(mock_assert()))
-
-
-@mock.patch("nftest.NFTestAssert.NFTestAssert", wraps=NFTestAssert)
-def test_assert_exists(mock_assert):
-    """Tests the functionality of the assert_exists method"""
-    # assert_exists() should raise an AssertionError if either or both of
-    # actual and expect do not exist.
-    # Tuples of (actual.exists(), expect.exists(), raises AssertionError)
-    cases = (
-        (True, True, False),
-        (False, True, True),
-        (True, False, True),
-        (False, False, True),
+        exec diff "$@"
+        """),
+        encoding="utf-8",
     )
 
-    for case in cases:
-        mock_assert.return_value.actual.exists.return_value = case[0]
-        mock_assert.return_value.expect.exists.return_value = case[1]
-
-        if case[2]:
-            with pytest.raises(FileNotFoundError):
-                NFTestAssert.assert_exists(mock_assert())
-        else:
-            NFTestAssert.assert_exists(mock_assert())
+    script.chmod(script.stat().st_mode | stat.S_IXUSR)
+    return Script(script, sentinel)
 
 
-@mock.patch("nftest.NFTestAssert.NFTestAssert", wraps=NFTestAssert)
-def test_assert_updated(mock_assert):
-    """Tests for failing assertion"""
-    timestamp = 1689805542.4275217
-
-    mock_assert.return_value.startup_time = datetime.datetime.fromtimestamp(
-        timestamp, tz=datetime.timezone.utc
-    )
-
-    # Test expected to fail with a time before the start time
-    mock_assert.return_value.actual.stat.return_value.st_mtime = timestamp - 1
-    with pytest.raises(AssertionError):
-        NFTestAssert.assert_updated(mock_assert())
-
-    # Test expected to fail with a time equal to the start time
-    mock_assert.return_value.actual.stat.return_value.st_mtime = timestamp
-    with pytest.raises(AssertionError):
-        NFTestAssert.assert_updated(mock_assert())
-
-    # Test expected to pass with a time after to the start time
-    mock_assert.return_value.actual.stat.return_value.st_mtime = timestamp + 1
-    NFTestAssert.assert_updated(mock_assert())
+@pytest.fixture(name="method")
+def fixture_method(request):
+    "A fixture for the NFTestAssert `method` argument."
+    return request.param
 
 
-@mock.patch("nftest.NFTestAssert.NFTestAssert", wraps=NFTestAssert)
-def test_assert_expected(mock_assert):
-    """Tests for passing assertion"""
-    mock_assert.return_value._logger.error = lambda x, y=None: None
+@pytest.fixture(name="file_contents")
+def fixture_file_contents(request):
+    """
+    A fixture for the contents of the expect and actual files.
 
-    # A passing test should not raise an error
-    mock_assert.return_value.get_assert_method = lambda: lambda x, y: True
-    NFTestAssert.assert_expected(mock_assert())
-
-    # A failing test should raise an error
-    mock_assert.return_value.get_assert_method = lambda: lambda x, y: False
-    with pytest.raises(AssertionError):
-        NFTestAssert.assert_expected(mock_assert())
+    Returns the tuple (actual_text, expect_text).
+    """
+    return request.param
 
 
-@pytest.mark.parametrize(
-    "glob_return_value,case_pass", [([], False), (["a", "b"], False), (["a"], True)]
-)
-@mock.patch("glob.glob")
-@mock.patch("nftest.NFTestAssert.NFTestENV")
-@mock.patch("logging.getLogger")
-def test_identify_assertions_files(
-    mock_getlogger, mock_env, mock_glob, glob_return_value, case_pass
+FileList = namedtuple("FileList", ["paths", "glob"])
+
+
+@pytest.fixture(name="actual_files")
+def fixture_actual_files(request, file_contents, tmp_path):
+    """
+    A fixture to create 'actual' files in the temporary directory.
+
+    These files are explicitly created before the NFTestAssert object is
+    instantiated.
+
+    The fixture returns the tuple (list-of-files, glob).
+    """
+    files = []
+    for index in range(request.param):
+        actual_file = tmp_path / f"{index}.actual"
+        actual_file.write_text(file_contents[0], encoding="utf-8")
+        files.append(actual_file)
+
+    return FileList(files, str(tmp_path / "*.actual"))
+
+
+@pytest.fixture(name="expect_files")
+def fixture_expect_files(request, file_contents, tmp_path):
+    """
+    A fixture to create 'expect' files in the temporary directory.
+
+    The fixture returns the tuple (list-of-files, glob).
+    """
+    files = []
+    for index in range(request.param):
+        expect_file = tmp_path / f"{index}.expect"
+        expect_file.write_text(file_contents[1], encoding="utf-8")
+        files.append(expect_file)
+
+    return FileList(files, str(tmp_path / "*.expect"))
+
+
+@pytest.fixture(name="configured_test")
+def fixture_configured_test(
+    custom_script,
+    method,
+    expect_files,
+    actual_files,
 ):
-    """Tests for proper file identification"""
+    """
+    A fixture to set up an NFTestAssert referring to a temporary directory.
 
-    mock_glob.return_value = glob_return_value
-    mock_env.return_value = None
-    mock_getlogger.return_value = lambda x: None
+    The NFTestAssert is instantiated after the actual files, so by default
+    perform_assertions() should fail with a NotUpdatedError.
+    """
+    assertion = NFTestAssert(
+        expect=expect_files.glob,
+        actual=actual_files.glob,
+        script=custom_script.script,
+        method=method,
+    )
 
-    test_assert = NFTestAssert("", "")
+    return assertion
 
-    if case_pass:
-        test_assert.identify_assertion_files()
-    else:
-        with pytest.raises(ValueError):
-            test_assert.identify_assertion_files()
+
+# Parameterization for the number of expected and actual files matching the
+# globs. Failure is expected for anything except 1.
+FILECOUNT_PARAMS = [
+    pytest.param(0, marks=pytest.mark.xfailgroup.with_args(ValueError)),
+    1,
+    pytest.param(2, marks=pytest.mark.xfailgroup.with_args(ValueError)),
+]
+
+
+# Parameterization for the contents of the expected and actual files. Failure
+# is expected if the contents do not match.
+FILECONTENT_PARAMS = [
+    ("", ""),
+    ("matching", "matching"),
+    pytest.param(
+        ("something", ""),
+        marks=pytest.mark.xfailgroup.with_args(MismatchedContentsError),
+    ),
+    pytest.param(
+        ("something", "SOMETHING"),
+        marks=pytest.mark.xfailgroup.with_args(MismatchedContentsError),
+    ),
+]
+
+# Parameterization for whether the actual file was updated since the creation
+# of the NFTestAssert. Failure is expected if this is false.
+FILEUPDATED_PARAMS = [
+    True,
+    pytest.param(False, marks=pytest.mark.xfailgroup.with_args(NotUpdatedError)),
+]
+
+
+@pytest.mark.parametrize("file_updated", FILEUPDATED_PARAMS)
+@pytest.mark.parametrize("custom_script", [True, False], indirect=True)
+@pytest.mark.parametrize(
+    "method",
+    [
+        "md5",
+    ],
+    indirect=True,
+)
+@pytest.mark.parametrize("expect_files", FILECOUNT_PARAMS, indirect=True)
+@pytest.mark.parametrize("actual_files", FILECOUNT_PARAMS, indirect=True)
+@pytest.mark.parametrize("file_contents", FILECONTENT_PARAMS, indirect=True)
+def test_nftest_assert(
+    configured_test, caplog, custom_script, actual_files, file_updated
+):
+    "Test that assertions appropriately pass or fail based on the parameters."
+    if file_updated:
+        for actual_file in actual_files.paths:
+            actual_file.touch()
+
+    with caplog.at_level(logging.DEBUG):
+        configured_test.perform_assertions()
+
+    used_custom_script = custom_script.script is not None
+    flag_in_logs = (
+        custom_script.sentinel is not None and custom_script.sentinel in caplog.text
+    )
+
+    # The sentinel text should be in the output if and only if the custom
+    # script was used
+    assert used_custom_script == flag_in_logs
