@@ -1,5 +1,6 @@
 """Test module for NFTestAssert"""
 
+import datetime
 import logging
 import stat
 import textwrap
@@ -176,11 +177,14 @@ def test_nftest_assert(
             prior_time = actual_file.stat().st_mtime
             for _ in range(10):
                 actual_file.touch()
-                if actual_file.stat().st_mtime != prior_time:
+
+                # NFTestAssert uses compares datetimes, which have microsecond
+                # precision. Ensure that the time difference can be resolved.
+                if datetime.timedelta(actual_file.stat().st_mtime - prior_time):
                     break
 
-                print(f"{time.time()}: Time not updated...")
-                time.sleep(0.01)
+                # Sleep 5 resolution ticks before trying again
+                time.sleep(5 * datetime.timedelta.resolution.total_seconds())
             else:
                 raise RuntimeError("Filesystem timings broken")
 
