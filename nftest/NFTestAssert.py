@@ -1,21 +1,31 @@
 """NF Test assert"""
 
 import datetime
-import errno
-import os
 import subprocess
-from typing import Callable
+from typing import Callable, Optional
 from logging import getLogger, DEBUG
 
 from nftest.common import calculate_checksum, resolve_single_path, popen_with_logger
 from nftest.NFTestENV import NFTestENV
 
 
+class NotUpdatedError(Exception):
+    "An exception indicating that file was not updated."
+
+
+class MismatchedContentsError(Exception):
+    "An exception that the contents are mismatched."
+
+
 class NFTestAssert:
     """Defines how nextflow test results are asserted."""
 
     def __init__(
-        self, actual: str, expect: str, method: str = "md5", script: str = None
+        self,
+        actual: str,
+        expect: str,
+        method: str = "md5",
+        script: Optional[str] = None,
     ):
         """Constructor"""
         self._env = NFTestENV()
@@ -27,55 +37,45 @@ class NFTestAssert:
 
         self.startup_time = datetime.datetime.now(tz=datetime.timezone.utc)
 
-    def identify_assertion_files(self) -> None:
-        """Resolve actual and expected paths"""
-        self.actual = resolve_single_path(self.actual)
-        self.expect = resolve_single_path(self.expect)
+    def perform_assertions(self):
+        "Perform the appropriate assertions on the named files."
+        # Ensure that there is exactly one file for each input glob pattern
+        actual_path = resolve_single_path(self.actual)
+        self._logger.debug(
+            "Actual path `%s` resolved to `%s`", self.actual, actual_path
+        )
+        expect_path = resolve_single_path(self.expect)
+        self._logger.debug(
+            "Expected path `%s` resolved to `%s`", self.expect, expect_path
+        )
 
-    def assert_exists(self) -> None:
-        "Assert that the expected and actual files exist."
-        if not self.actual.exists():
-            self._logger.error("Actual file not found: %s", self.actual)
-            raise FileNotFoundError(
-                errno.ENOENT, os.strerror(errno.ENOENT), self.actual
-            )
-
-        if not self.expect.exists():
-            self._logger.error("Expect file not found: %s", self.expect)
-            raise FileNotFoundError(
-                errno.ENOENT, os.strerror(errno.ENOENT), self.expect
-            )
-
-    def assert_updated(self) -> None:
-        "Assert that the actual file was updated during this test run."
+        # Assert that the actual file was updated during this test run
         file_mod_time = datetime.datetime.fromtimestamp(
-            self.actual.stat().st_mtime, tz=datetime.timezone.utc
+            actual_path.stat().st_mtime, tz=datetime.timezone.utc
         )
 
         self._logger.debug("Test creation time: %s", self.startup_time)
         self._logger.debug("Actual mod time:    %s", file_mod_time)
-        assert (
-            file_mod_time > self.startup_time
-        ), f"{str(self.actual)} was not modified by this pipeline"
 
-    def assert_expected(self) -> None:
-        "Assert the results match with the expected values."
-        assert_method = self.get_assert_method()
-        try:
-            assert assert_method(self.actual, self.expect)
-            self._logger.debug("Assertion passed")
-        except AssertionError as error:
+        if self.startup_time >= file_mod_time:
+            raise NotUpdatedError(
+                f"{str(self.actual)} was not modified by this pipeline"
+            )
+
+        # Assert that the files match
+        if not self.get_assert_method()(actual_path, expect_path):
             self._logger.error("Assertion failed")
             self._logger.error("Actual: %s", self.actual)
             self._logger.error("Expect: %s", self.expect)
-            raise error
+            raise MismatchedContentsError("File comparison failed")
+
+        self._logger.debug("Assertion passed")
 
     def get_assert_method(self) -> Callable:
         """Get the assert method"""
-        # pylint: disable=E0102
         if self.script is not None:
 
-            def func(actual, expect):
+            def script_function(actual, expect):
                 cmd = [self.script, actual, expect]
                 self._logger.debug(subprocess.list2cmdline(cmd))
 
@@ -84,15 +84,17 @@ class NFTestAssert:
                 )
                 return process.returncode == 0
 
-            return func
+            return script_function
+
         if self.method == "md5":
 
-            def func(actual, expect):
+            def md5_function(actual, expect):
                 self._logger.debug("md5 %s %s", actual, expect)
                 actual_value = calculate_checksum(actual)
                 expect_value = calculate_checksum(expect)
                 return actual_value == expect_value
 
-            return func
+            return md5_function
+
         self._logger.error("assert method %s unknown.", self.method)
         raise ValueError(f"assert method {self.method} unknown.")

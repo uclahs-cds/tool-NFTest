@@ -27,8 +27,7 @@ if TYPE_CHECKING:
 class NFTestCase:
     """Defines the NF test case"""
 
-    # pylint: disable=R0902
-    # pylint: disable=R0913
+    # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         name: str = None,
@@ -109,12 +108,9 @@ class NFTestCase:
             self._logger.error(" [ failed ]")
             return False
 
-        for ass in self.asserts:
+        for assertion in self.asserts:
             try:
-                ass.identify_assertion_files()
-                ass.assert_exists()
-                ass.assert_updated()
-                ass.assert_expected()
+                assertion.perform_assertions()
             except Exception as error:
                 self._logger.error(error.args)
                 self._logger.error(" [ failed ]")

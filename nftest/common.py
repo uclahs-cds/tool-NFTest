@@ -20,8 +20,7 @@ from nftest.NFTestENV import NFTestENV
 from nftest.syslog import syslog_filter
 
 
-# pylint: disable=W0613
-def validate_yaml(path: Path):
+def validate_yaml(path: Path):  # pylint: disable=unused-argument
     """Validate the yaml. Potentially use yaml schema
     https://rx.codesimply.com/
     """
@@ -41,10 +40,13 @@ def remove_nextflow_logs() -> None:
 def resolve_single_path(path: str) -> Path:
     """Resolve wildcards in path and ensure only a single path is identified"""
     expanded_paths = glob.glob(path)
-    if 1 != len(expanded_paths):
+
+    if not expanded_paths:
+        raise ValueError(f"Expression `{path}` did not resolve to any files")
+
+    if len(expanded_paths) > 1:
         raise ValueError(
-            f"Path `{path}` resolved to 0 or more than 1 file: {expanded_paths}."
-            " Assertion failed."
+            f"Expression `{path}` resolved to multiple files: {expanded_paths}"
         )
 
     return Path(expanded_paths[0])
@@ -78,6 +80,9 @@ def validate_reference(
         )
 
     _logger = logging.getLogger("NFTest")
+
+    if reference_checksum_type.lower() not in {"md5"}:
+        _logger.warning("reference_checksum_type must be `md5`")
 
     actual_checksum = calculate_checksum(Path(reference_parameter_path))
 
@@ -126,7 +131,7 @@ def setup_loggers():
     # Make a stream handler with the requested verbosity
     stream_handler = logging.StreamHandler(sys.stdout)
     try:
-        stream_handler.setLevel(logging._checkLevel(_env.NFT_LOG_LEVEL))  # pylint: disable=W0212
+        stream_handler.setLevel(_env.NFT_LOG_LEVEL)
     except ValueError:
         stream_handler.setLevel(logging.INFO)
 
