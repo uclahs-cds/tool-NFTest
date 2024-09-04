@@ -103,8 +103,8 @@ class NFTestCase:
             self._logger.info(" [ skipped ]")
             return True
 
-        nextflow_succeeded = self.submit()
-        if not nextflow_succeeded:
+        nextflow_process = self.submit()
+        if nextflow_process.returncode != 0:
             self._logger.error(" [ failed ]")
             return False
 
