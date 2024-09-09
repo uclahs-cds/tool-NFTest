@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+- Add `--report` flag to write out a summary JSON file
+
 ### Fixed
 - Properly catch failing test cases
 
