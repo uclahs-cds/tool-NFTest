@@ -78,7 +78,7 @@ def run(args):
     """Run"""
     find_config_yaml(args)
     setup_loggers()
-    runner = NFTestRunner(args.report)
+    runner = NFTestRunner(report=args.report)
     runner.load_from_config(args.config_file, args.TEST_CASES)
     sys.exit(runner.main())
 
