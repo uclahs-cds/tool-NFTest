@@ -2,24 +2,27 @@
 
 import shutil
 from logging import getLogger
+from pathlib import Path
 from typing import List
 import yaml
 from nftest.NFTestGlobal import NFTestGlobal
 from nftest.NFTestAssert import NFTestAssert
 from nftest.NFTestCase import NFTestCase
 from nftest.NFTestENV import NFTestENV
+from nftest.NFTestReport import NFTestReport
 from nftest.common import validate_yaml, validate_reference
 
 
 class NFTestRunner:
     """This holds all test cases and global settings from a single yaml file."""
 
-    def __init__(self, cases: List[NFTestCase] = None):
+    def __init__(self, cases: List[NFTestCase] = None, report: bool = False):
         """Constructor"""
         self._global = None
         self._env = NFTestENV()
         self._logger = getLogger("NFTest")
         self.cases = cases or []
+        self.save_report = report
 
     def load_from_config(self, config_yaml: str, target_cases: List[str]):
         """Load test info from config file."""
@@ -50,21 +53,30 @@ class NFTestRunner:
                         continue
                 self.cases.append(test_case)
 
-    def main(self):
+    def main(self) -> int:
         """Main entrance"""
         self.print_prolog()
 
-        failure_count = 0
+        report = NFTestReport()
 
         for case in self.cases:
             try:
-                if not case.test():
-                    failure_count += 1
+                if case.test():
+                    if case.skip:
+                        report.skipped_tests.append(case.name)
+                    else:
+                        report.passed_tests.append(case.name)
+                else:
+                    report.failed_tests.append(case.name)
+
             except AssertionError:
                 # In case of failed test case, continue with other cases
-                failure_count += 1
+                report.failed_tests.append(case.name)
 
-        return failure_count
+        if self.save_report:
+            report.write_report(Path(self._env.NFT_LOG).with_suffix(".json"))
+
+        return len(report.failed_tests)
 
     def print_prolog(self):
         """Print prolog"""
