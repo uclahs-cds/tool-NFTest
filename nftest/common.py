@@ -1,12 +1,12 @@
 """Common functions"""
 
 import argparse
-import re
-from typing import Tuple
+import enum
 import glob
 import hashlib
 import logging
 import os
+import re
 import selectors
 import shutil
 import subprocess
@@ -14,10 +14,20 @@ import sys
 import time
 
 from pathlib import Path
+from typing import Tuple
 
 from nftest import __version__
 from nftest.NFTestENV import NFTestENV
 from nftest.syslog import syslog_filter
+
+
+class TestResult(enum.Enum):
+    """Enumeration for test results."""
+    PENDING = enum.auto()
+    PASSED = enum.auto()
+    SKIPPED = enum.auto()
+    FAILED = enum.auto()
+    ERRORED = enum.auto()
 
 
 def validate_yaml(path: Path):  # pylint: disable=unused-argument

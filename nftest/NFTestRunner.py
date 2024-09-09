@@ -57,26 +57,24 @@ class NFTestRunner:
         """Main entrance"""
         self.print_prolog()
 
+        failure_count = 0
         report = NFTestReport()
 
         for case in self.cases:
-            try:
-                if case.test():
-                    if case.skip:
-                        report.skipped_tests.append(case.name)
-                    else:
-                        report.passed_tests.append(case.name)
-                else:
-                    report.failed_tests.append(case.name)
+            with report.track_test(case):
+                try:
+                    if not case.test():
+                        failure_count += 1
+                except AssertionError:
+                    # In case of failed test case, continue with other cases
+                    failure_count += 1
 
-            except AssertionError:
-                # In case of failed test case, continue with other cases
-                report.failed_tests.append(case.name)
+        assert failure_count == len(report.failed_tests) + len(report.errored_tests)
 
         if self.save_report:
             report.write_report(Path(self._env.NFT_LOG).with_suffix(".json"))
 
-        return len(report.failed_tests)
+        return failure_count
 
     def print_prolog(self):
         """Print prolog"""
