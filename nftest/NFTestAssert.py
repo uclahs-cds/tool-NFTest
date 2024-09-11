@@ -1,20 +1,59 @@
 """NF Test assert"""
 
 import datetime
+import glob
 import subprocess
 from typing import Callable, Optional
 from logging import getLogger, DEBUG
 
-from nftest.common import calculate_checksum, resolve_single_path, popen_with_logger
+from pathlib import Path
+
+from nftest.common import calculate_checksum, popen_with_logger
 from nftest.NFTestENV import NFTestENV
 
 
-class NotUpdatedError(Exception):
-    "An exception indicating that file was not updated."
+class NFTestAssertionError(Exception):
+    """Base class for assertions."""
 
 
-class MismatchedContentsError(Exception):
-    "An exception that the contents are mismatched."
+class NotUpdatedError(NFTestAssertionError):
+    """An exception indicating that file was not updated."""
+    def __init__(self, path: Path):
+        self.path = path
+
+    def __str__(self) -> str:
+        return f"{self.path} was not modified by this pipeline"
+
+class MismatchedContentsError(NFTestAssertionError):
+    """An exception that the contents are mismatched."""
+    def __init__(self, actual: Path, expect: Path):
+        self.actual = actual
+        self.expect = expect
+
+    def __str__(self) -> str:
+        return f"File comparison failed between {self.actual} and {self.expect}"
+
+class NonSpecificGlobError(NFTestAssertionError):
+    """An exception that the glob did not resolve to a single file."""
+    def __init__(self, globstr: str, paths: list[str]):
+        self.globstr = globstr
+        self.paths = paths
+
+    def __str__(self) -> str:
+        if self.paths:
+            return f"Expression `{self.globstr}` resolved to multiple files: {self.paths}"
+
+        return f"Expression `{self.globstr}` did not resolve to any files"
+
+
+def resolve_single_path(path: str) -> Path:
+    """Resolve wildcards in path and ensure only a single path is identified"""
+    expanded_paths = glob.glob(path)
+
+    if len(expanded_paths) != 1:
+        raise NonSpecificGlobError(path, expanded_paths)
+
+    return Path(expanded_paths[0])
 
 
 class NFTestAssert:
@@ -58,16 +97,14 @@ class NFTestAssert:
         self._logger.debug("Actual mod time:    %s", file_mod_time)
 
         if self.startup_time >= file_mod_time:
-            raise NotUpdatedError(
-                f"{str(self.actual)} was not modified by this pipeline"
-            )
+            raise NotUpdatedError(actual_path)
 
         # Assert that the files match
         if not self.get_assert_method()(actual_path, expect_path):
             self._logger.error("Assertion failed")
             self._logger.error("Actual: %s", self.actual)
             self._logger.error("Expect: %s", self.expect)
-            raise MismatchedContentsError("File comparison failed")
+            raise MismatchedContentsError(actual_path, expect_path)
 
         self._logger.debug("Assertion passed")
 
@@ -97,4 +134,4 @@ class NFTestAssert:
             return md5_function
 
         self._logger.error("assert method %s unknown.", self.method)
-        raise ValueError(f"assert method {self.method} unknown.")
+        raise NFTestAssertionError(f"assert method {self.method} unknown.")

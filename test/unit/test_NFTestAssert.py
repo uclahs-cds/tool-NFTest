@@ -9,7 +9,7 @@ from collections import namedtuple
 
 import pytest
 
-from nftest.NFTestAssert import NFTestAssert, NotUpdatedError, MismatchedContentsError
+from nftest.NFTestAssert import NFTestAssert, NotUpdatedError, MismatchedContentsError, NonSpecificGlobError
 
 
 @pytest.fixture(name="custom_script")
@@ -127,9 +127,9 @@ def fixture_configured_test(
 # Parameterization for the number of expected and actual files matching the
 # globs. Failure is expected for anything except 1.
 FILECOUNT_PARAMS = [
-    pytest.param(0, marks=pytest.mark.xfailgroup.with_args(ValueError)),
+    pytest.param(0, marks=pytest.mark.xfailgroup.with_args(NonSpecificGlobError)),
     1,
-    pytest.param(2, marks=pytest.mark.xfailgroup.with_args(ValueError)),
+    pytest.param(2, marks=pytest.mark.xfailgroup.with_args(NonSpecificGlobError)),
 ]
 
 

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List
 import yaml
 from nftest.NFTestGlobal import NFTestGlobal
-from nftest.NFTestAssert import NFTestAssert
+from nftest.NFTestAssert import NFTestAssert, NFTestAssertionError
 from nftest.NFTestCase import NFTestCase
 from nftest.NFTestENV import NFTestENV
 from nftest.NFTestReport import NFTestReport
@@ -65,9 +65,14 @@ class NFTestRunner:
                 try:
                     if not case.test():
                         failure_count += 1
-                except AssertionError:
+                except NFTestAssertionError as err:
                     # In case of failed test case, continue with other cases
+                    self._logger.debug(err)
                     failure_count += 1
+                except Exception as err:
+                    # Unhandled error
+                    self._logger.exception(err)
+                    raise
 
         assert failure_count == len(report.failed_tests) + len(report.errored_tests)
 
