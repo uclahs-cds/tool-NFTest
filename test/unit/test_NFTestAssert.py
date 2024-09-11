@@ -9,7 +9,12 @@ from collections import namedtuple
 
 import pytest
 
-from nftest.NFTestAssert import NFTestAssert, NotUpdatedError, MismatchedContentsError, NonSpecificGlobError
+from nftest.NFTestAssert import (
+    NFTestAssert,
+    NotUpdatedError,
+    MismatchedContentsError,
+    NonSpecificGlobError,
+)
 
 
 @pytest.fixture(name="custom_script")
@@ -49,7 +54,7 @@ def fixture_custom_script(request, tmp_path):
 
 @pytest.fixture(name="method")
 def fixture_method(request):
-    "A fixture for the NFTestAssert `method` argument."
+    """A fixture for the NFTestAssert `method` argument."""
     return request.param
 
 
@@ -171,7 +176,7 @@ FILEUPDATED_PARAMS = [
 def test_nftest_assert(
     configured_test, caplog, custom_script, actual_files, file_updated
 ):
-    "Test that assertions appropriately pass or fail based on the parameters."
+    """Test that assertions appropriately pass or fail based on the parameters."""
 
     # Time is monotonic, right?
     assert configured_test.startup_time <= datetime.datetime.now(
