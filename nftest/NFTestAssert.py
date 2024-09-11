@@ -7,6 +7,7 @@ from typing import Callable, Optional
 from logging import getLogger, DEBUG
 
 from pathlib import Path
+from typing import List
 
 from nftest.common import calculate_checksum, popen_with_logger
 from nftest.NFTestENV import NFTestENV
@@ -35,7 +36,7 @@ class MismatchedContentsError(NFTestAssertionError):
 
 class NonSpecificGlobError(NFTestAssertionError):
     """An exception that the glob did not resolve to a single file."""
-    def __init__(self, globstr: str, paths: list[str]):
+    def __init__(self, globstr: str, paths: List[str]):
         self.globstr = globstr
         self.paths = paths
 
