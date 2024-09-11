@@ -7,6 +7,7 @@ import os
 from contextlib import contextmanager
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
+from typing import Dict
 
 from nftest.common import TestResult
 from nftest.NFTestCase import NFTestCase
@@ -29,10 +30,10 @@ class NFTestReport:
         default_factory=lambda: datetime.datetime.now(tz=datetime.timezone.utc)
     )
 
-    passed_tests: dict[str, float] = field(default_factory=dict)
-    skipped_tests: dict[str, float] = field(default_factory=dict)
-    errored_tests: dict[str, float] = field(default_factory=dict)
-    failed_tests: dict[str, float] = field(default_factory=dict)
+    passed_tests: Dict[str, float] = field(default_factory=dict)
+    skipped_tests: Dict[str, float] = field(default_factory=dict)
+    errored_tests: Dict[str, float] = field(default_factory=dict)
+    failed_tests: Dict[str, float] = field(default_factory=dict)
 
     def __bool__(self):
         return not self.failed_tests

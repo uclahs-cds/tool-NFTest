@@ -3,11 +3,10 @@
 import datetime
 import glob
 import subprocess
-from typing import Callable, Optional
-from logging import getLogger, DEBUG
 
+from logging import getLogger, DEBUG
 from pathlib import Path
-from typing import List
+from typing import Callable, Optional, List
 
 from nftest.common import calculate_checksum, popen_with_logger
 from nftest.NFTestENV import NFTestENV
