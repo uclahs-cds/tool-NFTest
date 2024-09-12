@@ -14,7 +14,7 @@ from contextlib import ExitStack
 from pathlib import Path
 from typing import Callable, List, TYPE_CHECKING, Tuple
 
-from nftest.common import remove_nextflow_logs, popen_with_logger
+from nftest.common import remove_nextflow_logs, popen_with_logger, TestResult
 from nftest.NFTestENV import NFTestENV
 from nftest.syslog import SyslogServer
 
@@ -66,6 +66,7 @@ class NFTestCase:
         self.clean_logs = clean_logs
         self.skip = skip
         self.verbose = verbose
+        self.status = TestResult.PENDING
 
     def resolve_actual(self, asserts: List[NFTestAssert] = None):
         """Resolve the file path for actual file"""
@@ -101,10 +102,12 @@ class NFTestCase:
         """Run test cases."""
         if self.skip:
             self._logger.info(" [ skipped ]")
+            self.status = TestResult.SKIPPED
             return True
 
         nextflow_process = self.submit()
         if nextflow_process.returncode != 0:
+            self.status = TestResult.ERRORED
             self._logger.error(" [ failed ]")
             return False
 
@@ -114,8 +117,10 @@ class NFTestCase:
             except Exception as error:
                 self._logger.error(error.args)
                 self._logger.error(" [ failed ]")
+                self.status = TestResult.FAILED
                 raise error
         self._logger.info(" [ succeed ]")
+        self.status = TestResult.PASSED
         return True
 
     def submit(self) -> sp.CompletedProcess:

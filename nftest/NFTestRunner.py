@@ -2,24 +2,27 @@
 
 import shutil
 from logging import getLogger
+from pathlib import Path
 from typing import List
 import yaml
 from nftest.NFTestGlobal import NFTestGlobal
-from nftest.NFTestAssert import NFTestAssert
+from nftest.NFTestAssert import NFTestAssert, NFTestAssertionError
 from nftest.NFTestCase import NFTestCase
 from nftest.NFTestENV import NFTestENV
+from nftest.NFTestReport import NFTestReport
 from nftest.common import validate_yaml, validate_reference
 
 
 class NFTestRunner:
     """This holds all test cases and global settings from a single yaml file."""
 
-    def __init__(self, cases: List[NFTestCase] = None):
+    def __init__(self, cases: List[NFTestCase] = None, report: bool = False):
         """Constructor"""
         self._global = None
         self._env = NFTestENV()
         self._logger = getLogger("NFTest")
         self.cases = cases or []
+        self.save_report = report
 
     def load_from_config(self, config_yaml: str, target_cases: List[str]):
         """Load test info from config file."""
@@ -50,19 +53,31 @@ class NFTestRunner:
                         continue
                 self.cases.append(test_case)
 
-    def main(self):
+    def main(self) -> int:
         """Main entrance"""
         self.print_prolog()
 
         failure_count = 0
+        report = NFTestReport()
 
         for case in self.cases:
-            try:
-                if not case.test():
+            with report.track_test(case):
+                try:
+                    if not case.test():
+                        failure_count += 1
+                except NFTestAssertionError as err:
+                    # In case of failed test case, continue with other cases
+                    self._logger.debug(err)
                     failure_count += 1
-            except AssertionError:
-                # In case of failed test case, continue with other cases
-                failure_count += 1
+                except Exception as err:
+                    # Unhandled error
+                    self._logger.exception(err)
+                    raise
+
+        assert failure_count == len(report.failed_tests) + len(report.errored_tests)
+
+        if self.save_report:
+            report.write_report(Path(self._env.NFT_LOG).with_suffix(".json"))
 
         return failure_count
 

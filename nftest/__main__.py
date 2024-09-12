@@ -64,6 +64,11 @@ def add_subparser_run(subparsers: argparse._SubParsersAction):
         nargs="?",
     )
     parser.add_argument(
+        "--report",
+        action="store_true",
+        help="Save out a detailed JSON test report alongside the log file"
+    )
+    parser.add_argument(
         "TEST_CASES", type=str, help="Exact test case to run.", nargs="*"
     )
     parser.set_defaults(func=run)
@@ -73,7 +78,7 @@ def run(args):
     """Run"""
     find_config_yaml(args)
     setup_loggers()
-    runner = NFTestRunner()
+    runner = NFTestRunner(report=args.report)
     runner.load_from_config(args.config_file, args.TEST_CASES)
     sys.exit(runner.main())
 

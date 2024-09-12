@@ -1,12 +1,12 @@
 """Common functions"""
 
 import argparse
-import re
-from typing import Tuple
+import enum
 import glob
 import hashlib
 import logging
 import os
+import re
 import selectors
 import shutil
 import subprocess
@@ -14,10 +14,20 @@ import sys
 import time
 
 from pathlib import Path
+from typing import Tuple
 
 from nftest import __version__
 from nftest.NFTestENV import NFTestENV
 from nftest.syslog import syslog_filter
+
+
+class TestResult(enum.Enum):
+    """Enumeration for test results."""
+    PENDING = enum.auto()
+    PASSED = enum.auto()
+    SKIPPED = enum.auto()
+    FAILED = enum.auto()
+    ERRORED = enum.auto()
 
 
 def validate_yaml(path: Path):  # pylint: disable=unused-argument
@@ -35,21 +45,6 @@ def remove_nextflow_logs() -> None:
             shutil.rmtree(file, ignore_errors=True)
         else:
             os.remove(file)
-
-
-def resolve_single_path(path: str) -> Path:
-    """Resolve wildcards in path and ensure only a single path is identified"""
-    expanded_paths = glob.glob(path)
-
-    if not expanded_paths:
-        raise ValueError(f"Expression `{path}` did not resolve to any files")
-
-    if len(expanded_paths) > 1:
-        raise ValueError(
-            f"Expression `{path}` resolved to multiple files: {expanded_paths}"
-        )
-
-    return Path(expanded_paths[0])
 
 
 def calculate_checksum(path: Path) -> str:
