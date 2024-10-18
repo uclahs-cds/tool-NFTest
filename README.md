@@ -1,5 +1,7 @@
 # NFTest
 
+[![GitHub release](https://img.shields.io/github/v/release/uclahs-cds/tool-NFTest)](https://github.com/uclahs-cds/tool-NFTest/actions/workflows/prepare-release.yaml)
+
 - [Overview](#overview)
 - [Installation](#installation)
     - [From GitHub](#install-directly-from-github)
