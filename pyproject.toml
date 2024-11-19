@@ -1,8 +1,39 @@
 [build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
-requires = [
-    "setuptools>=42",
-    "wheel"
+[project]
+name = "nftest"
+dynamic = ["version"]
+description = "CLI testing tool for Nextflow"
+readme = "README.md"
+authors = [
+    { name = "Chenghao Zhu", email = "ChenghaoZhu@mednet.ucla.edu" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Operating System :: OS Independent"
+]
+requires-python = ">=3.8"
+dependencies = [
+    "PyYAML",
+    "python-dotenv",
+    "pytest",
+    "mock"
 ]
 
-build-backend = "setuptools.build_meta"
+[project.optional-dependencies]
+dev = ["pytest", "mock"]
+
+[project.scripts]
+nftest = "nftest.__main__:main"
+
+[tool.hatch.metadata]
+package-data = { "nftest" = ["data/*"] }
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "nftest/_version.py"

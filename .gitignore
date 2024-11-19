@@ -16,3 +16,6 @@ build
 venv
 .env
 junit
+.tox/
+.pytest_cache/
+_version.py
