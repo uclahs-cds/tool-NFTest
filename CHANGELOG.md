@@ -12,6 +12,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Add `--report` flag to write out a summary JSON file
 
+### Changed
+- Migrate package definition to pyproject.toml
+
 ### Fixed
 - Properly catch failing test cases
 
