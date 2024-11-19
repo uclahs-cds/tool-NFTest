@@ -37,3 +37,15 @@ source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "nftest/_version.py"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+env_list =
+    py3.8
+    py3.12
+
+[testenv]
+deps = pytest
+commands = pytest test --doctest-modules --junitxml=junit/test-results.xml
+"""
