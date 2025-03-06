@@ -20,11 +20,11 @@ dependencies = [
     "PyYAML",
     "python-dotenv",
     "pytest",
-    "mock"
+    "mock<=5.1.0"
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "mock"]
+dev = ["pytest", "mock<=5.1.0"]
 
 [project.scripts]
 nftest = "nftest.__main__:main"
@@ -34,6 +34,9 @@ package-data = { "nftest" = ["data/*"] }
 
 [tool.hatch.version]
 source = "vcs"
+
+[tool.hatch.version.raw-options]
+git_describe_command = "git describe --dirty --tags --long --match 'v[0-9]*.[0-9]*.[0-9]*'"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "nftest/_version.py"
