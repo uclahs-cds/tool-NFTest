@@ -20,11 +20,11 @@ dependencies = [
     "PyYAML",
     "python-dotenv",
     "pytest",
-    "mock"
+    "mock<=5.1.0"
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "mock"]
+dev = ["pytest", "mock<=5.1.0"]
 
 [project.scripts]
 nftest = "nftest.__main__:main"
