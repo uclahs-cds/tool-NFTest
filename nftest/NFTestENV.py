@@ -15,6 +15,7 @@ class NFTestENV(metaclass=Singleton):
     NFT_OUTPUT: str = field(init=False)
     NFT_TEMP: str = field(init=False)
     NFT_INIT: str = field(init=False)
+    NFT_PIPELINE: str = field(init=False)
     NFT_LOG_LEVEL: str = field(init=False)
     NFT_LOG: str = field(init=False)
 
@@ -25,6 +26,7 @@ class NFTestENV(metaclass=Singleton):
         self.NFT_OUTPUT = os.getenv("NFT_OUTPUT", default="./")
         self.NFT_TEMP = os.getenv("NFT_TEMP", default="./")
         self.NFT_INIT = os.getenv("NFT_INIT", default=str(os.getcwd()))
+        self.NFT_PIPELINE = os.getenv("NFT_PIPELINE", default=self.NFT_INIT)
         self.NFT_LOG_LEVEL = os.getenv("NFT_LOG_LEVEL", default="INFO")
         self.NFT_LOG = os.getenv(
             "NFT_LOG",
@@ -47,4 +49,6 @@ class NFTestENV(metaclass=Singleton):
                 print(f"LOG: Loaded .env from {adir}", flush=True)
                 return
 
-        print("WARN: unable to find .env. Default values will be used.", flush=True)
+        print(
+            "WARN: unable to find .env. Default values and existing variables will be used.",
+            flush=True)
