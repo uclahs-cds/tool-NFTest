@@ -19,6 +19,6 @@ class NFTestGlobal:
         """constructor"""
         self._env = NFTestENV()
         self.temp_dir = os.path.join(self._env.NFT_TEMP, temp_dir)
-        self.nf_config = os.path.join(self._env.NFT_INIT, nf_config)
+        self.nf_config = os.path.join(self._env.NFT_PIPELINE, nf_config)
         self.remove_temp = remove_temp
         self.clean_logs = clean_logs
