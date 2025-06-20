@@ -24,6 +24,14 @@ class NFTestRunner:
         self.cases = cases or []
         self.save_report = report
 
+    def combine_with_pipeline_dir(self, path_to_combine: str):
+        """ Combine given path with NFT_INIT """
+        if os.path.isabs(path_to_combine):
+            self._logger.info(f"{path_to_combine} is absolute. " \
+                "It will not be resolved relative to NFT_PIPELINE")
+
+        return os.path.join(self._env.NFT_PIPELINE, path_to_combine)
+
     def load_from_config(self, config_yaml: str, target_cases: List[str]):
         """Load test info from config file."""
         validate_yaml(config_yaml)
@@ -36,9 +44,19 @@ class NFTestRunner:
                 else:
                     asserts = []
                 case["asserts"] = asserts
+
+                case["nf_script"] = (
+                    self.combine_with_pipeline_dir(case["nf_script"])
+                    if case.get("nf_script", None) else None
+                )
+
                 case["nf_configs"] = (
                     [case.pop("nf_config")] if case.get("nf_config", None) else []
                 )
+
+                for a_config in case.get("nf_configs", []):
+                    case["nf_configs"].append(self.combine_with_pipeline_dir(a_config))
+
                 if "reference_files" in case:
                     case["reference_params"] = [
                         validate_reference(**reference_file)
