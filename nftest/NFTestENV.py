@@ -16,6 +16,7 @@ class NFTestENV(metaclass=Singleton):
     NFT_TEMP: str = field(init=False)
     NFT_INIT: str = field(init=False)
     NFT_PIPELINE: str = field(init=False)
+    NFT_TESTDIR: str = field(init=False)
     NFT_LOG_LEVEL: str = field(init=False)
     NFT_LOG: str = field(init=False)
 
@@ -27,6 +28,7 @@ class NFTestENV(metaclass=Singleton):
         self.NFT_TEMP = os.getenv("NFT_TEMP", default="./")
         self.NFT_INIT = os.getenv("NFT_INIT", default=str(os.getcwd()))
         self.NFT_PIPELINE = os.getenv("NFT_PIPELINE", default=self.NFT_INIT)
+        self.NFT_TESTDIR = os.getenv("NFT_TESTDIR", default=None)
         self.NFT_LOG_LEVEL = os.getenv("NFT_LOG_LEVEL", default="INFO")
         self.NFT_LOG = os.getenv(
             "NFT_LOG",
