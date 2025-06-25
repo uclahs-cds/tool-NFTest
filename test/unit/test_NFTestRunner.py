@@ -13,6 +13,12 @@ class RunnerData:
     _global = None
     cases = []
 
+    def resolve_testdir(self, yaml_dir):
+        return None
+
+    def combine_with_dir(self, file_to_combine, dir):
+        return None
+
 
 # pylint: disable=W0613
 @mock.patch("nftest.NFTestRunner.NFTestCase")
