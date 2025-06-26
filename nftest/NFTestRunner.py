@@ -45,7 +45,9 @@ class NFTestRunner:
                     asserts = []
                     for ass in case["asserts"]:
                         if ass.get("script", None):
-                            ass["script"] = self.combine_with_dir(ass["script"], self._env.NFT_TESTDIR)
+                            ass["script"] = (
+                                self.combine_with_dir(ass["script"], self._env.NFT_TESTDIR)
+                            )
                         asserts.append(NFTestAssert(**ass))
                 else:
                     asserts = []
