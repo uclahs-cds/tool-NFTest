@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse
 import sys
+import os
 from logging import getLogger
 from pathlib import Path
 import shutil
@@ -79,9 +80,22 @@ def run(args):
     find_config_yaml(args)
 
     # Set up NFTestENV with config path to allow loading .env from same directory
-    _ = NFTestENV(test_yaml = args.config_file)
+    loaded_env = NFTestENV(test_yaml = args.config_file)
 
     setup_loggers()
+
+    _logger = getLogger("NFTest")
+
+    _logger.info("Current working directory: %s", os.getcwd())
+    _logger.info("Resolved environment variables:")
+    for var_name, var_value in loaded_env.__dict__.items():
+        if not callable(var_value) and var_name.startswith('NFT'):
+            _logger.info("`%s`: `%s`", var_name, var_value)
+
+    _logger.info("Resolved arguments:")
+    for arg_name, arg_value in vars(args).items():
+        _logger.info("`%s`: `%s`", arg_name, arg_value)
+
     runner = NFTestRunner(report=args.report)
     runner.load_from_config(args.config_file, args.TEST_CASES)
     sys.exit(runner.main())
