@@ -77,6 +77,10 @@ def add_subparser_run(subparsers: argparse._SubParsersAction):
 def run(args):
     """Run"""
     find_config_yaml(args)
+
+    # Set up NFTestENV with config path to allow loading .env from same directory
+    _ = NFTestENV(args.config_file)
+
     setup_loggers()
     runner = NFTestRunner(report=args.report)
     runner.load_from_config(args.config_file, args.TEST_CASES)
