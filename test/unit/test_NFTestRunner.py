@@ -9,9 +9,14 @@ from nftest.NFTestRunner import NFTestRunner
 @dataclass
 class RunnerData:
     """Basic dataclass for holding runner data"""
+    # pylint: disable=unused-argument
 
     _global = None
     cases = []
+
+    def combine_with_dir(self, file_to_combine, base_dir):
+        """ Combine relative file path with base directory """
+        return None
 
 
 # pylint: disable=W0613

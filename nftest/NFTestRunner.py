@@ -1,6 +1,7 @@
 """Test runner"""
 
 import shutil
+import os
 from logging import getLogger
 from pathlib import Path
 from typing import List
@@ -24,6 +25,15 @@ class NFTestRunner:
         self.cases = cases or []
         self.save_report = report
 
+    def combine_with_dir(self, path_to_combine: str, base_dir: str):
+        """ Combine given path with NFT_INIT """
+        if os.path.isabs(path_to_combine):
+            self._logger.info(
+                "`%s` is absolute. It will not be resolved relative to `%s`",
+                path_to_combine, base_dir)
+
+        return os.path.join(base_dir, path_to_combine)
+
     def load_from_config(self, config_yaml: str, target_cases: List[str]):
         """Load test info from config file."""
         validate_yaml(config_yaml)
@@ -32,13 +42,36 @@ class NFTestRunner:
             self._global = NFTestGlobal(**config["global"])
             for case in config["cases"]:
                 if "asserts" in case:
-                    asserts = [NFTestAssert(**ass) for ass in case["asserts"]]
+                    asserts = []
+                    for ass in case["asserts"]:
+                        if ass.get("script", None):
+                            ass["script"] = (
+                                self.combine_with_dir(ass["script"], self._env.NFT_TESTDIR)
+                            )
+                        asserts.append(NFTestAssert(**ass))
                 else:
                     asserts = []
                 case["asserts"] = asserts
-                case["nf_configs"] = (
-                    [case.pop("nf_config")] if case.get("nf_config", None) else []
+
+                case["nf_script"] = (
+                    self.combine_with_dir(case["nf_script"], self._env.NFT_PIPELINE)
+                    if case.get("nf_script", None) else None
                 )
+
+                case_configs = [
+                    self.combine_with_dir(case.pop("nf_config"), self._env.NFT_TESTDIR)
+                ] if case.get("nf_config", None) else []
+
+                for a_config in case.get("nf_configs", []):
+                    case_configs.append(self.combine_with_dir(a_config, self._env.NFT_TESTDIR))
+
+                case["nf_configs"] = case_configs
+
+                case["params_file"] = (
+                    self.combine_with_dir(case["params_file"], self._env.NFT_TESTDIR)
+                    if case.get("params_file", None) else None
+                )
+
                 if "reference_files" in case:
                     case["reference_params"] = [
                         validate_reference(**reference_file)
