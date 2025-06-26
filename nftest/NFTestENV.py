@@ -19,7 +19,7 @@ class NFTestENV(metaclass=Singleton):
     NFT_TESTDIR: str = field(init=False)
     NFT_LOG_LEVEL: str = field(init=False)
     NFT_LOG: str = field(init=False)
-    test_yaml: InitVar[str]
+    test_yaml: InitVar[str] = None
 
     def __post_init__(self, test_yaml: str = None):
         """Post-init set env variables"""
