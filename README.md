@@ -132,6 +132,8 @@ Testing runs can be configured through environment variables. Theses variables c
 |`NFT_INIT`|Directory where initialized files will be created. Also the directory where the tool will search for the global configuration file.|Current working directory|
 |`NFT_LOG_LEVEL`|Python `logging` level. See [logging levels](https://docs.python.org/3/library/logging.html#logging-levels) for more details and available options.|`INFO`|
 |`NFT_LOG`|Path to file for writing log messages. By default, logging will append to file if it exists.|`<NFT_OUTPUT>/log-nftest-<date>.log`|
+|`NFT_PIPELINE`|Path to directory containing Nextflow script to run.|Value of `NFT_INIT`|
+|`NFT_TESTDIR`|Path to directory containing test files for test cases.|Directory containing the NFTest YAML|
 
 ### `nftest` YAML config file
 
