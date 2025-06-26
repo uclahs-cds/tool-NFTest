@@ -14,9 +14,11 @@ class RunnerData:
     cases = []
 
     def resolve_testdir(self, yaml_dir):
+        """ Identify path containing test directory """
         return None
 
-    def combine_with_dir(self, file_to_combine, dir):
+    def combine_with_dir(self, file_to_combine, base_dir):
+        """ Combine relative file path with base directory """
         return None
 
 
