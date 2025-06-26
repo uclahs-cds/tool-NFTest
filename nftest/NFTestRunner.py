@@ -1,6 +1,7 @@
 """Test runner"""
 
 import shutil
+import os
 from logging import getLogger
 from pathlib import Path
 from typing import List
@@ -48,7 +49,11 @@ class NFTestRunner:
             self._global = NFTestGlobal(**config["global"])
             for case in config["cases"]:
                 if "asserts" in case:
-                    asserts = [NFTestAssert(**ass) for ass in case["asserts"]]
+                    asserts = []
+                    for ass in case["asserts"]:
+                        if ass.get("script", None):
+                            ass["script"] = self.combine_with_dir(ass["script"], test_directory)
+                        asserts.append(NFTestAssert(**ass))
                 else:
                     asserts = []
                 case["asserts"] = asserts
@@ -58,7 +63,9 @@ class NFTestRunner:
                     if case.get("nf_script", None) else None
                 )
 
-                case_configs = [case.pop("nf_config")] if case.get("nf_config", None) else []
+                case_configs = [
+                    self.combine_with_dir(case.pop("nf_config"), test_directory)
+                ] if case.get("nf_config", None) else []
 
                 for a_config in case.get("nf_configs", []):
                     case_configs.append(self.combine_with_dir(a_config, test_directory))
