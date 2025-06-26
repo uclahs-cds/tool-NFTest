@@ -28,8 +28,9 @@ class NFTestRunner:
     def combine_with_dir(self, path_to_combine: str, base_dir: str):
         """ Combine given path with NFT_INIT """
         if os.path.isabs(path_to_combine):
-            self._logger.info(f"{path_to_combine} is absolute. " \
-                f"It will not be resolved relative to {base_dir}")
+            self._logger.info(
+                "`%s` is absolute. It will not be resolved relative to `%s`",
+                path_to_combine, base_dir)
 
         return os.path.join(base_dir, path_to_combine)
 
