@@ -46,9 +46,10 @@ class NFTestENV(metaclass=Singleton):
         """Load and set env variables"""
         dirs_to_check = []
         dirs_to_check.append(os.getcwd())
-        dirs_to_check.append(os.path.expanduser("~"))
         if yaml_dir:
             dirs_to_check.append(yaml_dir)
+        dirs_to_check.append(os.path.expanduser("~"))
+
         for adir in dirs_to_check:
             if not load_dotenv(os.path.join(adir, ".env")):
                 print(f"LOG: .env not found in {adir}.", flush=True)
