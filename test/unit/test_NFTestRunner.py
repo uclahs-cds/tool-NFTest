@@ -9,6 +9,7 @@ from nftest.NFTestRunner import NFTestRunner
 @dataclass
 class RunnerData:
     """Basic dataclass for holding runner data"""
+    # pylint: disable=unused-argument
 
     _global = None
     cases = []
