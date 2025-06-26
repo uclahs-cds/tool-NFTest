@@ -127,13 +127,13 @@ Testing runs can be configured through environment variables. Theses variables c
 
 |Variable|Description|Default|
 |:--:|:--:|:--:|
-|`NFT_OUTPUT`|Output directory for parameter for Nextflow. Parameter name is designated by `output_directory_param_name` for each case.|`./`|
-|`NFT_TEMP`|Temporary directory root to be used for Nextflow working files. Combined with `temp_dir` from global configuration to create final directory. See `NXF_WORK` [here](https://www.nextflow.io/docs/latest/config.html#environment-variables) for details.|`./`|
+|`NFT_OUTPUT`|Output directory for parameter for Nextflow. Parameter name is designated by `output_directory_param_name` for each case.|Current working directory|
+|`NFT_TEMP`|Temporary directory root to be used for Nextflow working files. Combined with `temp_dir` from global configuration to create final directory. See `NXF_WORK` [here](https://www.nextflow.io/docs/latest/config.html#environment-variables) for details.|Current working directory|
 |`NFT_INIT`|Directory where initialized files will be created. Also the directory where the tool will search for the global configuration file.|Current working directory|
 |`NFT_LOG_LEVEL`|Python `logging` level. See [logging levels](https://docs.python.org/3/library/logging.html#logging-levels) for more details and available options.|`INFO`|
 |`NFT_LOG`|Path to file for writing log messages. By default, logging will append to file if it exists.|`<NFT_OUTPUT>/log-nftest-<date>.log`|
 |`NFT_PIPELINE`|Path to directory containing Nextflow script to run.|Value of `NFT_INIT`|
-|`NFT_TESTDIR`|Path to directory containing test files for test cases.|Directory containing the NFTest YAML|
+|`NFT_TESTDIR`|Path to directory containing test files for test cases.|Directory containing the config YAML (nftest.yaml)|
 
 ### `nftest` YAML config file
 
