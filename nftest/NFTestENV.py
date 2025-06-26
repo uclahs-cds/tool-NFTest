@@ -2,7 +2,7 @@
 
 import os
 import datetime
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, InitVar
 from dotenv import load_dotenv
 from nftest.Singleton import Singleton
 
@@ -19,6 +19,7 @@ class NFTestENV(metaclass=Singleton):
     NFT_TESTDIR: str = field(init=False)
     NFT_LOG_LEVEL: str = field(init=False)
     NFT_LOG: str = field(init=False)
+    test_yaml: InitVar[str]
 
     def __post_init__(self, test_yaml: str = None):
         """Post-init set env variables"""

@@ -79,7 +79,7 @@ def run(args):
     find_config_yaml(args)
 
     # Set up NFTestENV with config path to allow loading .env from same directory
-    _ = NFTestENV(args.config_file)
+    _ = NFTestENV(test_yaml = args.config_file)
 
     setup_loggers()
     runner = NFTestRunner(report=args.report)
