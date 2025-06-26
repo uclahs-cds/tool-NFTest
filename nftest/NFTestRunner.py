@@ -34,17 +34,9 @@ class NFTestRunner:
 
         return os.path.join(base_dir, path_to_combine)
 
-    def resolve_testdir(self, config_yaml: str) -> str:
-        """ Resolve directory containing test files """
-        if self._env.NFT_TESTDIR:
-            return self._env.NFT_TESTDIR
-
-        return os.path.abspath(os.path.dirname(config_yaml))
-
     def load_from_config(self, config_yaml: str, target_cases: List[str]):
         """Load test info from config file."""
         validate_yaml(config_yaml)
-        test_directory = self.resolve_testdir(config_yaml)
         with open(config_yaml, "rt", encoding="utf-8") as handle:
             config = yaml.safe_load(handle)
             self._global = NFTestGlobal(**config["global"])
@@ -53,7 +45,7 @@ class NFTestRunner:
                     asserts = []
                     for ass in case["asserts"]:
                         if ass.get("script", None):
-                            ass["script"] = self.combine_with_dir(ass["script"], test_directory)
+                            ass["script"] = self.combine_with_dir(ass["script"], self._env.NFT_TESTDIR)
                         asserts.append(NFTestAssert(**ass))
                 else:
                     asserts = []
@@ -65,16 +57,16 @@ class NFTestRunner:
                 )
 
                 case_configs = [
-                    self.combine_with_dir(case.pop("nf_config"), test_directory)
+                    self.combine_with_dir(case.pop("nf_config"), self._env.NFT_TESTDIR)
                 ] if case.get("nf_config", None) else []
 
                 for a_config in case.get("nf_configs", []):
-                    case_configs.append(self.combine_with_dir(a_config, test_directory))
+                    case_configs.append(self.combine_with_dir(a_config, self._env.NFT_TESTDIR))
 
                 case["nf_configs"] = case_configs
 
                 case["params_file"] = (
-                    self.combine_with_dir(case["params_file"], test_directory)
+                    self.combine_with_dir(case["params_file"], self._env.NFT_TESTDIR)
                     if case.get("params_file", None) else None
                 )
 
